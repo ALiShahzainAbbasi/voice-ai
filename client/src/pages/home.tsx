@@ -217,16 +217,6 @@ export default function Home() {
               isTestingAll={isTestingAll}
             />
             
-            {/* Sentiment Analysis */}
-            {textInput.trim() && friends.length > 0 && (
-              <SentimentIndicator
-                text={textInput}
-                personality={friends[0]?.personality || 'cheerful'}
-                currentStability={friends[0]?.stability || 0.75}
-                currentSimilarity={friends[0]?.similarity || 0.85}
-              />
-            )}
-            
             <ConversationIntegration
               onTextGenerated={setTextInput}
             />
@@ -237,6 +227,16 @@ export default function Home() {
               masterVolume={masterVolume}
               onMasterVolumeChange={setMasterVolume}
             />
+            
+            {/* Sentiment Analysis - Moved to bottom */}
+            {textInput.trim() && friends.length > 0 && (
+              <SentimentIndicator
+                text={textInput}
+                personality={friends[0]?.personality || 'cheerful'}
+                currentStability={friends[0]?.stability || 0.75}
+                currentSimilarity={friends[0]?.similarity || 0.85}
+              />
+            )}
           </div>
 
           {/* Right Column: Friends Management */}

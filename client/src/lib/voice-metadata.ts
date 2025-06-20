@@ -22,7 +22,7 @@ export const voiceMetadata: Record<string, VoiceMetadata> = {
   },
   "EXAVITQu4vr4xnSDxMaL": {
     voice_id: "EXAVITQu4vr4xnSDxMaL",
-    name: "Sarah",
+    name: "Bella",
     category: "Professional",
     description: "Confident and professional female voice, ideal for business presentations",
     accent: "American",
@@ -70,6 +70,36 @@ export const voiceMetadata: Record<string, VoiceMetadata> = {
     gender: "Female",
     use_case: "Youth content, energetic presentations, casual streaming"
   },
+  "ErXwobaYiN019PkySvjV": {
+    voice_id: "ErXwobaYiN019PkySvjV",
+    name: "Antoni",
+    category: "Creative",
+    description: "Artistic and expressive male voice with emotional depth",
+    accent: "American",
+    age: "Adult",
+    gender: "Male",
+    use_case: "Creative content, artistic expression, emotional storytelling"
+  },
+  "MF3mGyEYCl7XYWbV9V6O": {
+    voice_id: "MF3mGyEYCl7XYWbV9V6O",
+    name: "Elli",
+    category: "Youthful",
+    description: "Bright, cheerful female voice with youthful energy",
+    accent: "American",
+    age: "Young",
+    gender: "Female",
+    use_case: "Youth-oriented content, cheerful presentations, casual conversation"
+  },
+  "TxGEqnHWrfWFTfGW9XjX": {
+    voice_id: "TxGEqnHWrfWFTfGW9XjX",
+    name: "Josh",
+    category: "Enthusiastic",
+    description: "Energetic, enthusiastic male voice perfect for engaging content",
+    accent: "American",
+    age: "Young Adult",
+    gender: "Male",
+    use_case: "Energetic presentations, sports commentary, motivational content"
+  },
   "CYw3kZ02Hs0563khs1Fj": {
     voice_id: "CYw3kZ02Hs0563khs1Fj",
     name: "Dave",
@@ -109,6 +139,26 @@ export const voiceMetadata: Record<string, VoiceMetadata> = {
     age: "Adult",
     gender: "Male",
     use_case: "Dramatic readings, theater, expressive content"
+  },
+  "oWAxZDx7w5VEj9dCyTzz": {
+    voice_id: "oWAxZDx7w5VEj9dCyTzz",
+    name: "Grace",
+    category: "Elegant",
+    description: "Sophisticated, graceful female voice with refined articulation",
+    accent: "British",
+    age: "Adult",
+    gender: "Female",
+    use_case: "Elegant presentations, sophisticated content, formal speeches"
+  },
+  "onwK4e9ZLuTAKqWW03F9": {
+    voice_id: "onwK4e9ZLuTAKqWW03F9",
+    name: "Daniel",
+    category: "Authoritative",
+    description: "Strong, commanding male voice with natural authority",
+    accent: "British",
+    age: "Adult",
+    gender: "Male",
+    use_case: "Leadership content, authoritative announcements, professional guidance"
   }
 };
 

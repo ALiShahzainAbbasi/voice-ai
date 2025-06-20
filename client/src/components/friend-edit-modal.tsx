@@ -75,21 +75,35 @@ export function FriendEditModal({ friend, isOpen, onClose, onSave }: FriendEditM
 
     try {
       setIsPlayingSample(true);
+      console.log("Playing voice sample for:", voiceId);
+      
       const response = await apiRequest("POST", "/api/voice-sample", { voiceId, sampleType: "greeting" }) as any;
+      console.log("Voice sample response:", response);
       
       if (response.audio) {
-        const audioBlob = new Blob([Uint8Array.from(atob(response.audio), c => c.charCodeAt(0))], {
-          type: 'audio/mpeg'
-        });
+        // Create audio blob from base64
+        const binaryString = atob(response.audio);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        
+        const audioBlob = new Blob([bytes], { type: 'audio/mpeg' });
         const audioUrl = URL.createObjectURL(audioBlob);
         const audio = new Audio(audioUrl);
         
+        audio.onloadeddata = () => {
+          console.log("Audio loaded successfully");
+        };
+        
         audio.onended = () => {
+          console.log("Audio playback ended");
           setIsPlayingSample(false);
           URL.revokeObjectURL(audioUrl);
         };
         
-        audio.onerror = () => {
+        audio.onerror = (e) => {
+          console.error("Audio playback error:", e);
           setIsPlayingSample(false);
           URL.revokeObjectURL(audioUrl);
           toast({
@@ -99,9 +113,32 @@ export function FriendEditModal({ friend, isOpen, onClose, onSave }: FriendEditM
           });
         };
         
-        await audio.play();
+        // Set volume and play
+        audio.volume = 0.8;
+        
+        try {
+          await audio.play();
+          console.log("Audio started playing");
+        } catch (playError) {
+          console.error("Play error:", playError);
+          setIsPlayingSample(false);
+          URL.revokeObjectURL(audioUrl);
+          toast({
+            title: "Error",
+            description: "Browser blocked audio playback. Please interact with the page first.",
+            variant: "destructive",
+          });
+        }
+      } else {
+        setIsPlayingSample(false);
+        toast({
+          title: "Error",
+          description: "No audio data received",
+          variant: "destructive",
+        });
       }
     } catch (error) {
+      console.error("Voice sample generation error:", error);
       setIsPlayingSample(false);
       toast({
         title: "Error",
@@ -245,32 +282,32 @@ export function FriendEditModal({ friend, isOpen, onClose, onSave }: FriendEditM
                       <div className="flex-1">
                         <div className="flex items-center space-x-2 mb-2">
                           <h4 className="font-medium text-gray-900">{voice.name}</h4>
+                          <Badge variant="secondary" className="text-xs">
+                            {metadata?.gender || voice.labels?.gender || "Unknown"}
+                          </Badge>
+                          <Badge variant="outline" className="text-xs">
+                            {metadata?.accent || voice.labels?.accent || "Unknown"}
+                          </Badge>
                           {metadata && (
-                            <>
-                              <Badge variant="secondary" className="text-xs">
-                                {metadata.gender}
-                              </Badge>
-                              <Badge variant="outline" className="text-xs">
-                                {metadata.accent}
-                              </Badge>
-                              <Badge variant="outline" className="text-xs">
-                                {metadata.category}
-                              </Badge>
-                            </>
+                            <Badge variant="outline" className="text-xs">
+                              {metadata.category}
+                            </Badge>
                           )}
                         </div>
                         
-                        {metadata && (
-                          <div className="space-y-1">
-                            <p className="text-sm text-gray-600">{metadata.description}</p>
-                            <p className="text-xs text-gray-500">
-                              <span className="font-medium">Best for:</span> {metadata.use_case}
-                            </p>
+                        <div className="space-y-1">
+                          <p className="text-sm text-gray-600">
+                            {metadata?.description || `${voice.name} voice with natural speech characteristics`}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            <span className="font-medium">Best for:</span> {metadata?.use_case || "General conversation and content"}
+                          </p>
+                          {metadata && (
                             <p className="text-xs text-gray-500">
                               <span className="font-medium">Age:</span> {metadata.age}
                             </p>
-                          </div>
-                        )}
+                          )}
+                        </div>
                       </div>
                       
                       <Button
