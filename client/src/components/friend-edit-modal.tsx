@@ -77,12 +77,13 @@ export function FriendEditModal({ friend, isOpen, onClose, onSave }: FriendEditM
       setIsPlayingSample(true);
       console.log("Playing voice sample for:", voiceId);
       
-      const response = await apiRequest("POST", "/api/voice-sample", { voiceId, sampleType: "greeting" }) as any;
-      console.log("Voice sample response:", response);
+      const response = await apiRequest("POST", "/api/voice-sample", { voiceId, sampleType: "greeting" });
+      const data = await response.json();
+      console.log("Voice sample response:", data);
       
-      if (response.audio) {
+      if (data.audio) {
         // Create audio blob from base64
-        const binaryString = atob(response.audio);
+        const binaryString = atob(data.audio);
         const bytes = new Uint8Array(binaryString.length);
         for (let i = 0; i < binaryString.length; i++) {
           bytes[i] = binaryString.charCodeAt(i);
@@ -130,7 +131,7 @@ export function FriendEditModal({ friend, isOpen, onClose, onSave }: FriendEditM
           });
         }
       } else {
-        console.error("No audio data in response:", response);
+        console.error("No audio data in response:", data);
         setIsPlayingSample(false);
         toast({
           title: "Error",
