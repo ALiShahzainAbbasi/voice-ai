@@ -1,0 +1,103 @@
+# Virtual Friend Voice Testing Application
+
+## Overview
+
+This is a full-stack React application built for testing voice synthesis with different virtual friends using ElevenLabs text-to-speech API. The application allows users to create and manage virtual friends with detailed personality profiles and test how different voice settings affect speech generation.
+
+## System Architecture
+
+### Frontend Architecture
+- **Framework**: React 18 with TypeScript
+- **Routing**: Wouter for lightweight client-side routing
+- **State Management**: React Query for server state and local React state for UI
+- **Styling**: Tailwind CSS with shadcn/ui component library
+- **Build Tool**: Vite with custom configuration for development and production
+
+### Backend Architecture
+- **Runtime**: Node.js with Express.js server
+- **Database**: PostgreSQL with Drizzle ORM for type-safe database operations
+- **Database Provider**: Neon Database (serverless PostgreSQL)
+- **API Design**: RESTful endpoints for CRUD operations on friends
+- **Development**: Hot module replacement with Vite integration
+
+### Project Structure
+```
+├── client/           # Frontend React application
+├── server/           # Backend Express server
+├── shared/           # Shared TypeScript types and schemas
+├── migrations/       # Database migration files
+└── attached_assets/  # Additional documentation
+```
+
+## Key Components
+
+### Data Models
+- **Users**: Authentication system with username/password
+- **Friends**: Virtual friend profiles with comprehensive attributes including:
+  - Personal details (name, age, gender, race, religion)
+  - Voice characteristics (voice ID, stability, similarity settings)
+  - Personality traits (cheerful, romantic, unhinged, sarcastic, wise)
+  - Political alignment (-100 to +100 scale)
+
+### Voice Integration
+- **ElevenLabs API**: Text-to-speech generation with customizable voice parameters
+- **Personality Mapping**: Each personality type maps to specific voice stability and similarity settings
+- **Audio Playback**: Browser Audio API for real-time voice testing
+- **Batch Testing**: Ability to test all friends' voices simultaneously
+
+### User Interface
+- **Friend Management**: Create, edit, and delete virtual friends
+- **Voice Testing**: Text input with real-time voice generation
+- **Global Controls**: Master volume and playback speed controls
+- **Responsive Design**: Mobile-friendly interface using Tailwind CSS
+
+## Data Flow
+
+1. **Friend Management**: Users create/edit friends through modal forms with validation
+2. **Voice Generation**: Text input triggers API calls to ElevenLabs with friend-specific parameters
+3. **Audio Processing**: Generated audio is played through browser with configurable speed/volume
+4. **State Synchronization**: React Query manages server state with automatic cache invalidation
+
+## External Dependencies
+
+### Core Dependencies
+- **@neondatabase/serverless**: PostgreSQL database connectivity
+- **drizzle-orm**: Type-safe database operations
+- **@tanstack/react-query**: Server state management
+- **@radix-ui/react-***: Accessible UI component primitives
+- **zod**: Runtime type validation and schema definition
+
+### Development Tools
+- **tsx**: TypeScript execution for development server
+- **esbuild**: Fast JavaScript bundling for production
+- **tailwindcss**: Utility-first CSS framework
+- **@replit/vite-plugin-***: Replit-specific development tools
+
+### Voice Processing
+- **ElevenLabs API**: External text-to-speech service
+- **Browser Audio API**: Native audio playback capabilities
+
+## Deployment Strategy
+
+### Development Environment
+- **Local Development**: `npm run dev` starts both client and server with HMR
+- **Database Management**: `npm run db:push` for schema migrations
+- **Port Configuration**: Server runs on port 5000 with Vite proxy
+
+### Production Deployment
+- **Build Process**: Vite bundles client, esbuild bundles server
+- **Static Assets**: Client built to `dist/public`, served by Express
+- **Environment Variables**: DATABASE_URL required for PostgreSQL connection
+- **Replit Integration**: Configured for autoscale deployment with PostgreSQL module
+
+### Storage Implementation
+- **Database**: PostgreSQL with Drizzle ORM for production
+- **Fallback**: In-memory storage implementation for development/testing
+- **Migration Strategy**: Schema-first approach with type generation
+
+## Changelog
+- June 20, 2025. Initial setup
+
+## User Preferences
+
+Preferred communication style: Simple, everyday language.
