@@ -172,6 +172,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Generate voice sample
+  app.post("/api/voice-sample", async (req, res) => {
+    try {
+      const { voiceId, sampleType = "greeting" } = req.body;
+
+      if (!voiceId) {
+        return res.status(400).json({ error: "VoiceId is required" });
+      }
+
+      const apiKey = process.env.ELEVENLABS_API_KEY;
+      if (!apiKey) {
+        return res.status(500).json({ error: "ElevenLabs API key not configured" });
+      }
+
+      const sampleTexts = {
+        greeting: "Hello! This is a sample of my voice. How do you think I sound?",
+        professional: "Good morning. I'm pleased to present today's quarterly business review.",
+        emotional: "I understand this is difficult for you. Please know that you're not alone.",
+        storytelling: "Once upon a time, in a land far away, there lived a brave young hero.",
+        casual: "Hey there! Just wanted to check in and see how you're doing today."
+      };
+
+      const text = sampleTexts[sampleType as keyof typeof sampleTexts] || sampleTexts.greeting;
+
+      const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+        method: "POST",
+        headers: {
+          "Accept": "audio/mpeg",
+          "Content-Type": "application/json",
+          "xi-api-key": apiKey,
+        },
+        body: JSON.stringify({
+          text,
+          model_id: "eleven_monolingual_v1",
+          voice_settings: {
+            stability: 0.75,
+            similarity_boost: 0.85,
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`ElevenLabs API error: ${response.status}`);
+      }
+
+      const audioBuffer = await response.arrayBuffer();
+      const base64Audio = Buffer.from(audioBuffer).toString('base64');
+      
+      res.json({ audio: base64Audio });
+    } catch (error) {
+      console.error("Failed to generate voice sample:", error);
+      res.status(500).json({ error: "Failed to generate voice sample" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

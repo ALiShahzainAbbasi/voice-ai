@@ -1,15 +1,17 @@
 import { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { X } from "lucide-react";
+import { X, Play, Volume2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { personalitySettings } from "@/lib/personality-settings";
+import { getVoiceMetadata } from "@/lib/voice-metadata";
 import type { Friend, InsertFriend } from "@shared/schema";
 
 interface FriendEditModalProps {
@@ -36,6 +38,7 @@ export function FriendEditModal({ friend, isOpen, onClose, onSave }: FriendEditM
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [isPlayingSample, setIsPlayingSample] = useState(false);
 
   const { data: voices = [] } = useQuery({
     queryKey: ["/api/voices"],
@@ -66,6 +69,47 @@ export function FriendEditModal({ friend, isOpen, onClose, onSave }: FriendEditM
       });
     },
   });
+
+  const playVoiceSample = async (voiceId: string) => {
+    if (!voiceId || isPlayingSample) return;
+
+    try {
+      setIsPlayingSample(true);
+      const response = await apiRequest("POST", "/api/voice-sample", { voiceId, sampleType: "greeting" });
+      
+      if (response.audio) {
+        const audioBlob = new Blob([Uint8Array.from(atob(response.audio), c => c.charCodeAt(0))], {
+          type: 'audio/mpeg'
+        });
+        const audioUrl = URL.createObjectURL(audioBlob);
+        const audio = new Audio(audioUrl);
+        
+        audio.onended = () => {
+          setIsPlayingSample(false);
+          URL.revokeObjectURL(audioUrl);
+        };
+        
+        audio.onerror = () => {
+          setIsPlayingSample(false);
+          URL.revokeObjectURL(audioUrl);
+          toast({
+            title: "Error",
+            description: "Failed to play voice sample",
+            variant: "destructive",
+          });
+        };
+        
+        await audio.play();
+      }
+    } catch (error) {
+      setIsPlayingSample(false);
+      toast({
+        title: "Error",
+        description: "Failed to generate voice sample",
+        variant: "destructive",
+      });
+    }
+  };
 
   useEffect(() => {
     if (friend) {
