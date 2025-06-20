@@ -38,12 +38,21 @@ This is a full-stack React application built for testing voice synthesis with di
   - Voice characteristics (voice ID, stability, similarity settings)
   - Personality traits (cheerful, romantic, unhinged, sarcastic, wise)
   - Political alignment (-100 to +100 scale)
+  - Timestamps for creation and updates
+- **Voice Moods**: Sentiment analysis data for voice recommendations
 
 ### Voice Integration
 - **ElevenLabs API**: Text-to-speech generation with customizable voice parameters
 - **Personality Mapping**: Each personality type maps to specific voice stability and similarity settings
+- **Sentiment Analysis**: Real-time text mood analysis with voice setting recommendations
+- **Voice Mood Matcher**: Suggests optimal voice parameters based on text sentiment and personality
 - **Audio Playback**: Browser Audio API for real-time voice testing
 - **Batch Testing**: Ability to test all friends' voices simultaneously
+
+### Data Persistence
+- **PostgreSQL Database**: Primary storage for friend configurations and voice mood data
+- **Local Storage**: Backup system for friend configurations and app settings
+- **Import/Export**: JSON backup and restore functionality for data portability
 
 ### User Interface
 - **Friend Management**: Create, edit, and delete virtual friends
@@ -99,6 +108,9 @@ This is a full-stack React application built for testing voice synthesis with di
 - June 20, 2025: Initial setup and complete implementation
 - June 20, 2025: Successfully integrated ElevenLabs API with working voice generation
 - June 20, 2025: Completed full testing with 4 virtual friends and voice synthesis
+- June 20, 2025: Added PostgreSQL database for data persistence
+- June 20, 2025: Implemented sentiment analysis with voice mood matching
+- June 20, 2025: Added local storage backup system with import/export functionality
 
 ## User Preferences
 

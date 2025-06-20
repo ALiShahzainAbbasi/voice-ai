@@ -1,14 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Mic, Users } from "lucide-react";
+import { Mic, Users, Download, Upload, Save } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FriendCard } from "@/components/friend-card";
 import { FriendEditModal } from "@/components/friend-edit-modal";
 import { TextInputSection } from "@/components/text-input-section";
 import { VoiceControlPanel } from "@/components/voice-control-panel";
+import { SentimentIndicator } from "@/components/sentiment-indicator";
 import { useToast } from "@/hooks/use-toast";
 import { generateVoiceForAllFriends } from "@/lib/voice-service";
+import { LocalStorageService } from "@/lib/local-storage";
 import type { Friend } from "@shared/schema";
 
 export default function Home() {
@@ -18,12 +20,39 @@ export default function Home() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingFriend, setEditingFriend] = useState<Friend | null>(null);
   const [isTestingAll, setIsTestingAll] = useState(false);
+  const [autoSave, setAutoSave] = useState(true);
   
   const { toast } = useToast();
 
-  const { data: friends = [], refetch: refetchFriends } = useQuery({
+  // Load settings from local storage on mount
+  useEffect(() => {
+    const settings = LocalStorageService.loadSettings();
+    setTextInput(settings.lastTextInput);
+    setPlaybackSpeed(settings.playbackSpeed);
+    setMasterVolume(settings.masterVolume);
+    setAutoSave(settings.autoSaveFriends);
+  }, []);
+
+  // Save settings to local storage when they change
+  useEffect(() => {
+    LocalStorageService.saveSettings({
+      lastTextInput: textInput,
+      playbackSpeed,
+      masterVolume,
+      autoSaveFriends: autoSave,
+    });
+  }, [textInput, playbackSpeed, masterVolume, autoSave]);
+
+  const { data: friends = [], refetch: refetchFriends } = useQuery<Friend[]>({
     queryKey: ["/api/friends"],
   });
+
+  // Auto-save friends to local storage when they change
+  useEffect(() => {
+    if (autoSave && friends.length > 0) {
+      LocalStorageService.saveFriends(friends);
+    }
+  }, [friends, autoSave]);
 
   const handleEditFriend = (friend: Friend) => {
     setEditingFriend(friend);
@@ -72,6 +101,66 @@ export default function Home() {
     }
   };
 
+  const handleExportBackup = () => {
+    try {
+      const backup = LocalStorageService.createBackup();
+      const blob = new Blob([backup], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `voice-lab-backup-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Backup Created",
+        description: "Your friend configurations have been exported",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create backup",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleImportBackup = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            const backup = e.target?.result as string;
+            if (LocalStorageService.restoreBackup(backup)) {
+              refetchFriends();
+              toast({
+                title: "Backup Restored",
+                description: "Your friend configurations have been imported",
+              });
+            } else {
+              throw new Error("Invalid backup format");
+            }
+          } catch (error) {
+            toast({
+              title: "Error",
+              description: "Failed to import backup",
+              variant: "destructive",
+            });
+          }
+        };
+        reader.readAsText(file);
+      }
+    };
+    input.click();
+  };
+
   const emptySlots = Math.max(0, 4 - friends.length);
 
   return (
@@ -86,9 +175,31 @@ export default function Home() {
               </div>
               <h1 className="text-xl font-semibold text-gray-900">Voice Test Lab</h1>
             </div>
-            <div className="flex items-center space-x-2 text-sm text-gray-500">
-              <Users className="w-4 h-4" />
-              <span>{friends.length}/4 Friends</span>
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleExportBackup}
+                  className="text-xs"
+                >
+                  <Download className="w-3 h-3 mr-1" />
+                  Export
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleImportBackup}
+                  className="text-xs"
+                >
+                  <Upload className="w-3 h-3 mr-1" />
+                  Import
+                </Button>
+              </div>
+              <div className="flex items-center space-x-2 text-sm text-gray-500">
+                <Users className="w-4 h-4" />
+                <span>{friends.length}/4 Friends</span>
+              </div>
             </div>
           </div>
         </div>
@@ -104,6 +215,17 @@ export default function Home() {
               onTestAll={handleTestAllVoices}
               isTestingAll={isTestingAll}
             />
+            
+            {/* Sentiment Analysis */}
+            {textInput.trim() && friends.length > 0 && (
+              <SentimentIndicator
+                text={textInput}
+                personality={friends[0]?.personality || 'cheerful'}
+                currentStability={friends[0]?.stability || 0.75}
+                currentSimilarity={friends[0]?.similarity || 0.85}
+              />
+            )}
+            
             <VoiceControlPanel
               playbackSpeed={playbackSpeed}
               onPlaybackSpeedChange={setPlaybackSpeed}
