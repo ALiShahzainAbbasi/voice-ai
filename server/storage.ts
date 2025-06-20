@@ -1,4 +1,6 @@
 import { users, friends, type User, type InsertUser, type Friend, type InsertFriend, type UpdateFriend } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -12,76 +14,55 @@ export interface IStorage {
   deleteFriend(id: number): Promise<boolean>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private friends: Map<number, Friend>;
-  private currentUserId: number;
-  private currentFriendId: number;
-
-  constructor() {
-    this.users = new Map();
-    this.friends = new Map();
-    this.currentUserId = 1;
-    this.currentFriendId = 1;
-  }
-
+export class DatabaseStorage implements IStorage {
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentUserId++;
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
     return user;
   }
 
   async getFriends(): Promise<Friend[]> {
-    return Array.from(this.friends.values());
+    return await db.select().from(friends);
   }
 
   async getFriend(id: number): Promise<Friend | undefined> {
-    return this.friends.get(id);
+    const [friend] = await db.select().from(friends).where(eq(friends.id, id));
+    return friend || undefined;
   }
 
   async createFriend(insertFriend: InsertFriend): Promise<Friend> {
-    const id = this.currentFriendId++;
-    const friend: Friend = { 
-      id,
-      name: insertFriend.name,
-      personality: insertFriend.personality,
-      voice: insertFriend.voice,
-      voiceId: insertFriend.voiceId || null,
-      gender: insertFriend.gender,
-      age: insertFriend.age,
-      race: insertFriend.race,
-      religion: insertFriend.religion,
-      politicalLeaning: insertFriend.politicalLeaning,
-      stability: insertFriend.stability,
-      similarity: insertFriend.similarity
-    };
-    this.friends.set(id, friend);
+    const [friend] = await db
+      .insert(friends)
+      .values(insertFriend)
+      .returning();
     return friend;
   }
 
   async updateFriend(id: number, updateFriend: UpdateFriend): Promise<Friend | undefined> {
-    const existingFriend = this.friends.get(id);
-    if (!existingFriend) return undefined;
-    
-    const updatedFriend: Friend = { ...existingFriend, ...updateFriend };
-    this.friends.set(id, updatedFriend);
-    return updatedFriend;
+    const [friend] = await db
+      .update(friends)
+      .set({ ...updateFriend, updatedAt: new Date().toISOString() })
+      .where(eq(friends.id, id))
+      .returning();
+    return friend || undefined;
   }
 
   async deleteFriend(id: number): Promise<boolean> {
-    return this.friends.delete(id);
+    const result = await db.delete(friends).where(eq(friends.id, id));
+    return (result.rowCount || 0) > 0;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
