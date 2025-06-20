@@ -214,11 +214,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       if (!response.ok) {
-        throw new Error(`ElevenLabs API error: ${response.status}`);
+        const errorData = await response.text();
+        console.error(`ElevenLabs API error: ${response.status} - ${errorData}`);
+        return res.status(response.status).json({ 
+          error: "Voice sample generation failed", 
+          details: errorData 
+        });
       }
 
       const audioBuffer = await response.arrayBuffer();
+      
+      if (!audioBuffer || audioBuffer.byteLength === 0) {
+        console.error("Empty audio buffer received from ElevenLabs");
+        return res.status(500).json({ error: "Empty audio data received" });
+      }
+      
       const base64Audio = Buffer.from(audioBuffer).toString('base64');
+      console.log(`Voice sample generated successfully: ${base64Audio.length} characters`);
       
       res.json({ audio: base64Audio });
     } catch (error) {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Mic, Users, Download, Upload, Save } from "lucide-react";
+import { Mic, Users, Download, Upload, Save, UserPlus } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FriendCard } from "@/components/friend-card";
@@ -207,82 +207,86 @@ export default function Home() {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-          {/* Left Column: Text Input & Controls */}
-          <div className="xl:col-span-1 space-y-6">
+        <div className="space-y-8">
+          {/* Voice Text Input Section */}
+          <div>
             <TextInputSection
               textInput={textInput}
               onTextChange={setTextInput}
               onTestAll={handleTestAllVoices}
               isTestingAll={isTestingAll}
             />
-            
-            <ConversationIntegration
-              onTextGenerated={setTextInput}
-            />
-            
-            <VoiceControlPanel
-              playbackSpeed={playbackSpeed}
-              onPlaybackSpeedChange={setPlaybackSpeed}
-              masterVolume={masterVolume}
-              onMasterVolumeChange={setMasterVolume}
-            />
-            
-            {/* Sentiment Analysis - Moved to bottom */}
-            {textInput.trim() && friends.length > 0 && (
-              <SentimentIndicator
-                text={textInput}
-                personality={friends[0]?.personality || 'cheerful'}
-                currentStability={friends[0]?.stability || 0.75}
-                currentSimilarity={friends[0]?.similarity || 0.85}
-              />
-            )}
           </div>
 
-          {/* Right Column: Friends Management */}
-          <div className="xl:col-span-2">
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-gray-900">Virtual Friends</h2>
-                <Button
-                  onClick={handleAddFriend}
-                  className="bg-voice-emerald text-white hover:bg-voice-emerald hover:opacity-90"
-                  disabled={friends.length >= 4}
-                >
-                  Add Friend
-                </Button>
-              </div>
-
-              {/* Friends Grid */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {friends.map((friend: Friend) => (
-                  <FriendCard
-                    key={friend.id}
-                    friend={friend}
-                    textInput={textInput}
-                    playbackSpeed={playbackSpeed}
-                    masterVolume={masterVolume / 100}
-                    onEdit={() => handleEditFriend(friend)}
-                    onDelete={() => refetchFriends()}
-                  />
-                ))}
-                
-                {/* Empty slots */}
-                {Array.from({ length: emptySlots }).map((_, index) => (
-                  <Card
-                    key={`empty-${index}`}
-                    className="bg-gray-50 border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors duration-200 cursor-pointer"
-                    onClick={handleAddFriend}
-                  >
-                    <CardContent className="p-8 flex flex-col items-center justify-center text-gray-500 h-full min-h-[200px]">
-                      <div className="text-3xl mb-3">+</div>
-                      <p className="font-medium">Add Friend</p>
-                      <p className="text-sm">Customize voice & personality</p>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+          {/* Virtual Friends Section - Right after Voice Text Input */}
+          <div>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold text-gray-900">Virtual Friends</h2>
+              <Button 
+                onClick={handleAddFriend}
+                disabled={friends.length >= 4}
+                className="bg-voice-emerald text-white hover:bg-voice-emerald hover:opacity-90"
+              >
+                <UserPlus className="w-4 h-4 mr-2" />
+                Add Friend
+              </Button>
             </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {friends.map((friend: Friend) => (
+                <FriendCard
+                  key={friend.id}
+                  friend={friend}
+                  textInput={textInput}
+                  playbackSpeed={playbackSpeed}
+                  masterVolume={masterVolume / 100}
+                  onEdit={() => handleEditFriend(friend)}
+                  onDelete={() => refetchFriends()}
+                />
+              ))}
+
+              {/* Empty Slots */}
+              {Array.from({ length: emptySlots }).map((_, index) => (
+                <Card
+                  key={`empty-${index}`}
+                  className="bg-gray-50 border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors duration-200 cursor-pointer"
+                  onClick={handleAddFriend}
+                >
+                  <CardContent className="p-8 flex flex-col items-center justify-center text-gray-500 h-full min-h-[200px]">
+                    <div className="text-3xl mb-3">+</div>
+                    <p className="font-medium">Add Friend</p>
+                    <p className="text-sm">Customize voice & personality</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          {/* Controls and Analysis Section */}
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+            <div className="xl:col-span-1 space-y-6">
+              <ConversationIntegration
+                onTextGenerated={setTextInput}
+              />
+              
+              <VoiceControlPanel
+                playbackSpeed={playbackSpeed}
+                onPlaybackSpeedChange={setPlaybackSpeed}
+                masterVolume={masterVolume}
+                onMasterVolumeChange={setMasterVolume}
+              />
+              
+              {/* Sentiment Analysis - At the bottom */}
+              {textInput.trim() && friends.length > 0 && (
+                <SentimentIndicator
+                  text={textInput}
+                  personality={friends[0]?.personality || 'cheerful'}
+                  currentStability={friends[0]?.stability || 0.75}
+                  currentSimilarity={friends[0]?.similarity || 0.85}
+                />
+              )}
+            </div>
+            <div className="xl:col-span-2"></div>
           </div>
         </div>
       </div>
