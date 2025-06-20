@@ -130,10 +130,11 @@ export function FriendEditModal({ friend, isOpen, onClose, onSave }: FriendEditM
           });
         }
       } else {
+        console.error("No audio data in response:", response);
         setIsPlayingSample(false);
         toast({
           title: "Error",
-          description: "No audio data received",
+          description: "No audio data received from server",
           variant: "destructive",
         });
       }
