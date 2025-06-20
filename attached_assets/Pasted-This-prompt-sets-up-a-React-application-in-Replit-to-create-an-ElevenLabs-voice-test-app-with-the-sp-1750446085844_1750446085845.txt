@@ -1,0 +1,36 @@
+This prompt sets up a React application in Replit to create an ElevenLabs voice test app with the specified features.
+
+main.js
+javascript
+Show inline
+Explanation of Key Features
+Form Fields:
+Personality: Dropdown with EightLabs-inspired options, mapped to voice settings (e.g., Unhinged uses low stability for erratic speech).
+Voice: Dropdown populated with ElevenLabs voices via API, supporting custom voice profiles.
+Sex: Male/Female dropdown for demographic context.
+Age: Slider (18–80) for age customization.
+Race: Dropdown with common options and "Other" for flexibility.
+Religion: Dropdown with major religions and "None"/"Other."
+Political Leaning: Slider (-100 to 100) for Left to Right spectrum.
+State Management: Friends stored as an array of objects in React state, limited to 4, with fields for all attributes.
+Voice Mapping: Each personality maps to specific ElevenLabs voice settings (stability, similarity_boost) to ensure consistent output (e.g., Romantic uses higher stability for smoother speech).
+Real-Time Audio: Audio is generated via ElevenLabs' TTS API and played using the browser's Audio API, with a loading state to prevent multiple plays.
+UI: Tailwind CSS ensures a clean, mobile-friendly design with minimal elements, aligning with your preference for simple UIs.
+Setup in Replit
+Create a new Node.js repl in Replit.
+Copy the file structure and code from the artifact above.
+Install dependencies via Replit’s terminal: npm install react react-dom axios tailwindcss vite @vitejs/plugin-react.
+Configure Tailwind and Vite as shown in the config files.
+Add your ElevenLabs API key to ELEVENLABS_API_KEY.
+Run the repl to launch the app in the preview window.
+Usage
+Enter text in the textarea (e.g., "Hello, I’m your virtual friend!").
+For each friend, customize their attributes using the form.
+Click "Play Voice" to hear the text spoken in the selected voice, adjusted for their personality.
+Adjust settings and replay to test different configurations.
+Notes
+API Key: Secure your ElevenLabs API key in production (use Replit’s .env secrets).
+Limitations: The free ElevenLabs plan limits usage; consider a paid plan for extensive testing.
+Custom Voices: To use custom voices, create them in ElevenLabs’ voice lab and manually add their voice_id to the app if the API doesn’t list them.
+Ethical Use: Ensure compliance with ElevenLabs’ guidelines, especially for voice cloning or sensitive attributes like race/religion.
+Extensibility: You can extend this with features like saving configurations to localStorage or integrating trending topics from Grok, as in your past requests.
