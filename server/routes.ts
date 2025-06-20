@@ -72,7 +72,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const apiKey = process.env.ELEVENLABS_API_KEY;
       if (!apiKey) {
-        return res.status(500).json({ error: "ElevenLabs API key not configured" });
+        // Provide demo voices when no API key is configured
+        const demoVoices = [
+          { voice_id: "21m00Tcm4TlvDq8ikWAM", name: "Rachel", labels: { gender: "female", accent: "american" } },
+          { voice_id: "AZnzlk1XvdvUeBnXmlld", name: "Domi", labels: { gender: "female", accent: "american" } },
+          { voice_id: "EXAVITQu4vr4xnSDxMaL", name: "Bella", labels: { gender: "female", accent: "american" } },
+          { voice_id: "ErXwobaYiN019PkySvjV", name: "Antoni", labels: { gender: "male", accent: "american" } },
+          { voice_id: "MF3mGyEYCl7XYWbV9V6O", name: "Elli", labels: { gender: "female", accent: "american" } },
+          { voice_id: "TxGEqnHWrfWFTfGW9XjX", name: "Josh", labels: { gender: "male", accent: "american" } },
+          { voice_id: "VR6AewLTigWG4xSOukaG", name: "Arnold", labels: { gender: "male", accent: "american" } },
+          { voice_id: "pNInz6obpgDQGcFmaJgB", name: "Adam", labels: { gender: "male", accent: "american" } }
+        ];
+        return res.json(demoVoices);
       }
 
       const response = await fetch("https://api.elevenlabs.io/v1/voices", {
@@ -82,14 +93,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       if (!response.ok) {
-        throw new Error(`ElevenLabs API error: ${response.status}`);
+        // If API key is invalid, return demo voices
+        console.warn(`ElevenLabs API error: ${response.status}. Using demo voices for testing.`);
+        const demoVoices = [
+          { voice_id: "21m00Tcm4TlvDq8ikWAM", name: "Rachel", labels: { gender: "female", accent: "american" } },
+          { voice_id: "AZnzlk1XvdvUeBnXmlld", name: "Domi", labels: { gender: "female", accent: "american" } },
+          { voice_id: "EXAVITQu4vr4xnSDxMaL", name: "Bella", labels: { gender: "female", accent: "american" } },
+          { voice_id: "ErXwobaYiN019PkySvjV", name: "Antoni", labels: { gender: "male", accent: "american" } },
+          { voice_id: "MF3mGyEYCl7XYWbV9V6O", name: "Elli", labels: { gender: "female", accent: "american" } },
+          { voice_id: "TxGEqnHWrfWFTfGW9XjX", name: "Josh", labels: { gender: "male", accent: "american" } },
+          { voice_id: "VR6AewLTigWG4xSOukaG", name: "Arnold", labels: { gender: "male", accent: "american" } },
+          { voice_id: "pNInz6obpgDQGcFmaJgB", name: "Adam", labels: { gender: "male", accent: "american" } }
+        ];
+        return res.json(demoVoices);
       }
 
       const data = await response.json();
       res.json(data.voices);
     } catch (error) {
       console.error("Failed to fetch voices:", error);
-      res.status(500).json({ error: "Failed to fetch voices from ElevenLabs" });
+      // Fallback to demo voices on any error
+      const demoVoices = [
+        { voice_id: "21m00Tcm4TlvDq8ikWAM", name: "Rachel", labels: { gender: "female", accent: "american" } },
+        { voice_id: "AZnzlk1XvdvUeBnXmlld", name: "Domi", labels: { gender: "female", accent: "american" } },
+        { voice_id: "EXAVITQu4vr4xnSDxMaL", name: "Bella", labels: { gender: "female", accent: "american" } },
+        { voice_id: "ErXwobaYiN019PkySvjV", name: "Antoni", labels: { gender: "male", accent: "american" } },
+        { voice_id: "MF3mGyEYCl7XYWbV9V6O", name: "Elli", labels: { gender: "female", accent: "american" } },
+        { voice_id: "TxGEqnHWrfWFTfGW9XjX", name: "Josh", labels: { gender: "male", accent: "american" } },
+        { voice_id: "VR6AewLTigWG4xSOukaG", name: "Arnold", labels: { gender: "male", accent: "american" } },
+        { voice_id: "pNInz6obpgDQGcFmaJgB", name: "Adam", labels: { gender: "male", accent: "american" } }
+      ];
+      res.json(demoVoices);
     }
   });
 

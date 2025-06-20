@@ -52,7 +52,20 @@ export class MemStorage implements IStorage {
 
   async createFriend(insertFriend: InsertFriend): Promise<Friend> {
     const id = this.currentFriendId++;
-    const friend: Friend = { ...insertFriend, id };
+    const friend: Friend = { 
+      id,
+      name: insertFriend.name,
+      personality: insertFriend.personality,
+      voice: insertFriend.voice,
+      voiceId: insertFriend.voiceId || null,
+      gender: insertFriend.gender,
+      age: insertFriend.age,
+      race: insertFriend.race,
+      religion: insertFriend.religion,
+      politicalLeaning: insertFriend.politicalLeaning,
+      stability: insertFriend.stability,
+      similarity: insertFriend.similarity
+    };
     this.friends.set(id, friend);
     return friend;
   }
