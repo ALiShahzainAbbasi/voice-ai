@@ -43,11 +43,15 @@ This is a full-stack React application built for testing voice synthesis with di
 
 ### Voice Integration
 - **ElevenLabs API**: Text-to-speech generation with customizable voice parameters
-- **Personality Mapping**: Each personality type maps to specific voice stability and similarity settings
+- **Enhanced Voice Selection**: Rich interface with voice descriptions, metadata, and sample audio
+- **Voice Metadata System**: Comprehensive voice profiles including accent, age, gender, and use cases
+- **Sample Voice Testing**: Preview any voice with sample text before selection
+- **Personality Mapping**: 12 personality types with specific voice stability and similarity settings
 - **Sentiment Analysis**: Real-time text mood analysis with voice setting recommendations
 - **Voice Mood Matcher**: Suggests optimal voice parameters based on text sentiment and personality
 - **Audio Playback**: Browser Audio API for real-time voice testing
 - **Batch Testing**: Ability to test all friends' voices simultaneously
+- **Conversation Templates**: Pre-built scenarios for testing different conversation contexts
 
 ### Data Persistence
 - **PostgreSQL Database**: Primary storage for friend configurations and voice mood data

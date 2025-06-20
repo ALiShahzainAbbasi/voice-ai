@@ -40,7 +40,7 @@ export function FriendEditModal({ friend, isOpen, onClose, onSave }: FriendEditM
   const queryClient = useQueryClient();
   const [isPlayingSample, setIsPlayingSample] = useState(false);
 
-  const { data: voices = [] } = useQuery({
+  const { data: voices = [] } = useQuery<Array<{voice_id: string, name: string, labels?: {gender?: string, accent?: string}}>>({
     queryKey: ["/api/voices"],
     enabled: isOpen,
   });
@@ -75,7 +75,7 @@ export function FriendEditModal({ friend, isOpen, onClose, onSave }: FriendEditM
 
     try {
       setIsPlayingSample(true);
-      const response = await apiRequest("POST", "/api/voice-sample", { voiceId, sampleType: "greeting" });
+      const response = await apiRequest("POST", "/api/voice-sample", { voiceId, sampleType: "greeting" }) as any;
       
       if (response.audio) {
         const audioBlob = new Blob([Uint8Array.from(atob(response.audio), c => c.charCodeAt(0))], {
@@ -210,11 +210,14 @@ export function FriendEditModal({ friend, isOpen, onClose, onSave }: FriendEditM
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="cheerful">Cheerful</SelectItem>
-                  <SelectItem value="romantic">Romantic</SelectItem>
-                  <SelectItem value="unhinged">Unhinged</SelectItem>
-                  <SelectItem value="sarcastic">Sarcastic</SelectItem>
-                  <SelectItem value="wise">Wise</SelectItem>
+                  {Object.entries(personalitySettings).map(([key, setting]) => (
+                    <SelectItem key={key} value={key}>
+                      <div className="flex flex-col">
+                        <span className="font-medium capitalize">{key}</span>
+                        <span className="text-xs text-gray-500">{setting.description}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -222,19 +225,76 @@ export function FriendEditModal({ friend, isOpen, onClose, onSave }: FriendEditM
 
           {/* Voice Selection */}
           <div>
-            <Label htmlFor="voice">Voice</Label>
-            <Select value={formData.voiceId} onValueChange={handleVoiceChange}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a voice" />
-              </SelectTrigger>
-              <SelectContent>
-                {voices.map((voice: any) => (
-                  <SelectItem key={voice.voice_id} value={voice.voice_id}>
-                    {voice.name} ({voice.labels?.gender || "Unknown"})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Label htmlFor="voice">Voice Selection</Label>
+            <div className="space-y-3 mt-2">
+              {voices.map((voice: any) => {
+                const metadata = getVoiceMetadata(voice.voice_id);
+                const isSelected = formData.voiceId === voice.voice_id;
+                
+                return (
+                  <div
+                    key={voice.voice_id}
+                    className={`border rounded-lg p-4 cursor-pointer transition-all ${
+                      isSelected 
+                        ? 'border-blue-500 bg-blue-50' 
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                    onClick={() => handleVoiceChange(voice.voice_id)}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <h4 className="font-medium text-gray-900">{voice.name}</h4>
+                          {metadata && (
+                            <>
+                              <Badge variant="secondary" className="text-xs">
+                                {metadata.gender}
+                              </Badge>
+                              <Badge variant="outline" className="text-xs">
+                                {metadata.accent}
+                              </Badge>
+                              <Badge variant="outline" className="text-xs">
+                                {metadata.category}
+                              </Badge>
+                            </>
+                          )}
+                        </div>
+                        
+                        {metadata && (
+                          <div className="space-y-1">
+                            <p className="text-sm text-gray-600">{metadata.description}</p>
+                            <p className="text-xs text-gray-500">
+                              <span className="font-medium">Best for:</span> {metadata.use_case}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              <span className="font-medium">Age:</span> {metadata.age}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          playVoiceSample(voice.voice_id);
+                        }}
+                        disabled={isPlayingSample}
+                        className="ml-3"
+                      >
+                        {isPlayingSample ? (
+                          <Volume2 className="w-4 h-4 animate-pulse" />
+                        ) : (
+                          <Play className="w-4 h-4" />
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
           {/* Demographics */}
