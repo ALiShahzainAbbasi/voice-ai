@@ -115,6 +115,9 @@ This is a full-stack React application built for testing voice synthesis with di
 - June 20, 2025: Added PostgreSQL database for data persistence
 - June 20, 2025: Implemented sentiment analysis with voice mood matching
 - June 20, 2025: Added local storage backup system with import/export functionality
+- June 20, 2025: Enhanced voice selection with detailed metadata and working sample playback
+- June 20, 2025: Reorganized UI layout with Virtual Friends section positioned after Voice Text Input
+- June 20, 2025: Expanded personality types to 12 options with comprehensive descriptions
 
 ## User Preferences
 
