@@ -8,6 +8,7 @@ import { FriendEditModal } from "@/components/friend-edit-modal";
 import { TextInputSection } from "@/components/text-input-section";
 import { VoiceControlPanel } from "@/components/voice-control-panel";
 import { SentimentIndicator } from "@/components/sentiment-indicator";
+import { ConversationIntegration } from "@/components/conversation-integration";
 import { useToast } from "@/hooks/use-toast";
 import { generateVoiceForAllFriends } from "@/lib/voice-service";
 import { LocalStorageService } from "@/lib/local-storage";
@@ -225,6 +226,10 @@ export default function Home() {
                 currentSimilarity={friends[0]?.similarity || 0.85}
               />
             )}
+            
+            <ConversationIntegration
+              onTextGenerated={setTextInput}
+            />
             
             <VoiceControlPanel
               playbackSpeed={playbackSpeed}
