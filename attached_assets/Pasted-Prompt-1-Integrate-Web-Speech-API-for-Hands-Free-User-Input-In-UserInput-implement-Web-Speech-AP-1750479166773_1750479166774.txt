@@ -1,0 +1,50 @@
+Prompt 1: Integrate Web Speech API for Hands-Free User Input
+* In UserInput, implement Web Speech API for speech-to-text.
+* On “Speak” button click, start speech recognition, convert input to text, and display in a text area.
+* Allow manual editing of recognized text.
+* Add a “Submit” button or auto-submit on speech end to send user input to the conversation.
+* Ensure compatibility with mobile browsers (e.g., Chrome, Safari).
+Prompt 2: Implement Grok Voice Creation for Virtual Friends
+* In voice.js, create a VoiceManager class to interface with Grok’s voice creation system via Grok API (endpoint: https://api.x.ai/grok).
+* For each virtual friend, generate a unique voice profile based on their personality, sex, age, and other characteristics using Grok’s voice modes (e.g., Ara for a warm tone, Unhinged for a bold tone).
+* Use Grok API to synthesize voice output for each friend’s response, ensuring the voice matches their personality (e.g., Romantic mode for a soft, flirtatious tone).
+* Cache voice profiles to minimize API calls and improve performance.
+Prompt 3: Conversation Logic in conversation.js
+* In conversation.js, create a ConversationManager class to handle conversation flow.
+* Initialize with Grok API endpoint and virtual friend profiles, including voice settings.
+* Implement startConversation to generate an initial Grok-hosted prompt (e.g., “Hey friends, what’s the vibe today?”).
+* Implement routeResponse to prioritize user input and randomly select a virtual friend to respond otherwise.
+* Use Grok API to generate responses, embedding friend characteristics and voice mode in the prompt (e.g., “Respond as a 25-year-old Female, Genius personality with Ara voice to [previous message]”).
+* Append responses to conversation history with speaker ID and voice metadata.
+Prompt 4: Connect to Grok API for Text and Voice
+* Use Axios in conversation.js and voice.js to send POST requests to Grok API.
+* For text responses: { "prompt": "Act as a [personality], [sex], [age], [political leaning] responding to [previous message]", "model": "grok-3" }.
+* For voice output, include voice mode in the prompt: { "prompt": "Generate response with [voice mode, e.g., Ara] for [personality]...", "model": "grok-3" }.
+* Handle API responses, extracting text and audio (if supported) for playback.
+* Mock API responses during development with sample JSON for text and placeholder audio.
+Prompt 5: Host Role and Conversation Flow
+* In ConversationManager, make Grok act as the host with a neutral Ara voice, generating transition messages (e.g., “Love that take! [Friend Name], your thoughts?”).
+* Prioritize user input: route the next response to address the user’s message directly.
+* Randomly select virtual friends for other responses using a random index generator.
+* Limit responses to 50–100 words for mobile readability and quick voice playback.
+Prompt 6: Style with Tailwind CSS
+* In styles.css, define global styles with Tailwind utilities.
+* Ensure mobile-first design: large fonts (text-lg), touch-friendly buttons (p-4, rounded-full), full-width elements.
+* Style messages: user (bg-blue-500), friend (bg-gray-200 with voice-specific borders, e.g., red for Unhinged), host (bg-green-300).
+* Add animations for new messages (e.g., slide-in with @keyframes).
+* Include voice status indicators (e.g., pulsing mic icon during speech input).
+Prompt 7: Test and Debug
+* Test Web Speech API on mobile browsers for accurate speech-to-text.
+* Verify Grok Voice output: ensure each friend’s voice matches their personality (e.g., Unhinged mode sounds bold, Romantic sounds soft).
+* Check conversation flow: user input takes priority, and friends’ voices are distinct.
+* Test UI responsiveness in Replit’s preview for mobile viewports.
+* Debug API calls: log responses, handle errors (e.g., API rate limits, voice synthesis failures).
+Prompt 8: Deploy and Optimize
+* Deploy via Replit’s hosting for testing.
+* Optimize performance: cache voice profiles and conversation history, use lazy loading for messages.
+* Add a “Reset Conversation” button to clear history and restart.
+* Ensure accessibility: ARIA labels for buttons, voice input status, and audio playback controls.
+Show in sidebar
+
+
+
