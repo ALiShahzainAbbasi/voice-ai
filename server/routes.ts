@@ -127,7 +127,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Generate voice
+  // Generate voice for conversations
   app.post("/api/generate-voice", async (req, res) => {
     try {
       const { text, voiceId, stability, similarity } = req.body;
@@ -159,13 +159,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       if (!response.ok) {
-        throw new Error(`ElevenLabs API error: ${response.status}`);
+        const errorData = await response.text();
+        console.error(`ElevenLabs API error: ${response.status} - ${errorData}`);
+        return res.status(response.status).json({ 
+          error: "Voice generation failed", 
+          details: errorData 
+        });
       }
 
       const audioBuffer = await response.arrayBuffer();
-      const base64Audio = Buffer.from(audioBuffer).toString('base64');
       
-      res.json({ audio: base64Audio });
+      if (!audioBuffer || audioBuffer.byteLength === 0) {
+        console.error("Empty audio buffer received from ElevenLabs");
+        return res.status(500).json({ error: "Empty audio data received" });
+      }
+      
+      const base64Audio = Buffer.from(audioBuffer).toString('base64');
+      const audioUrl = `data:audio/mpeg;base64,${base64Audio}`;
+      
+      console.log(`Voice generated successfully: ${base64Audio.length} characters`);
+      
+      res.json({ audioUrl, audio: base64Audio });
     } catch (error) {
       console.error("Failed to generate voice:", error);
       res.status(500).json({ error: "Failed to generate voice" });

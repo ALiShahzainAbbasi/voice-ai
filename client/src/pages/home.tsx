@@ -6,9 +6,12 @@ import { Button } from "@/components/ui/button";
 import { FriendCard } from "@/components/friend-card";
 import { FriendEditModal } from "@/components/friend-edit-modal";
 import { TextInputSection } from "@/components/text-input-section";
+import { SpeechInput } from "@/components/speech-input";
+import { ConversationDisplay } from "@/components/conversation-display";
 import { VoiceControlPanel } from "@/components/voice-control-panel";
 import { SentimentIndicator } from "@/components/sentiment-indicator";
 import { ConversationIntegration } from "@/components/conversation-integration";
+import { ConversationManager, ConversationState, ConversationMessage } from "@/lib/conversation-manager";
 import { useToast } from "@/hooks/use-toast";
 import { generateVoiceForAllFriends } from "@/lib/voice-service";
 import { LocalStorageService } from "@/lib/local-storage";
@@ -22,6 +25,13 @@ export default function Home() {
   const [editingFriend, setEditingFriend] = useState<Friend | null>(null);
   const [isTestingAll, setIsTestingAll] = useState(false);
   const [autoSave, setAutoSave] = useState(true);
+  const [conversationManager, setConversationManager] = useState<ConversationManager | null>(null);
+  const [conversationState, setConversationState] = useState<ConversationState>({
+    messages: [],
+    isActive: false,
+    participants: [],
+  });
+  const [isConversationLoading, setIsConversationLoading] = useState(false);
   
   const { toast } = useToast();
 
@@ -47,6 +57,21 @@ export default function Home() {
   const { data: friends = [], refetch: refetchFriends } = useQuery<Friend[]>({
     queryKey: ["/api/friends"],
   });
+
+  // Initialize conversation manager when friends data changes
+  useEffect(() => {
+    if (friends.length > 0) {
+      const manager = new ConversationManager(friends, setConversationState);
+      setConversationManager(manager);
+    } else {
+      setConversationManager(null);
+      setConversationState({
+        messages: [],
+        isActive: false,
+        participants: [],
+      });
+    }
+  }, [friends]);
 
   // Auto-save friends to local storage when they change
   useEffect(() => {
@@ -162,6 +187,76 @@ export default function Home() {
     input.click();
   };
 
+  // Conversation handlers
+  const handleStartConversation = async () => {
+    if (!conversationManager) return;
+    
+    setIsConversationLoading(true);
+    try {
+      await conversationManager.startConversation();
+      toast({
+        title: "Conversation Started",
+        description: "Your virtual friends are ready to chat!",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to start conversation",
+        variant: "destructive",
+      });
+    } finally {
+      setIsConversationLoading(false);
+    }
+  };
+
+  const handleStopConversation = () => {
+    if (!conversationManager) return;
+    
+    conversationManager.stopConversation();
+    toast({
+      title: "Conversation Ended",
+      description: "Chat session has been stopped",
+    });
+  };
+
+  const handleSpeechInput = async (text: string) => {
+    if (!conversationManager || !conversationState.isActive) {
+      toast({
+        title: "Start Conversation First",
+        description: "Please start a conversation before speaking",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsConversationLoading(true);
+    try {
+      await conversationManager.addUserMessage(text);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to process your message",
+        variant: "destructive",
+      });
+    } finally {
+      setIsConversationLoading(false);
+    }
+  };
+
+  const handlePlayMessage = async (message: ConversationMessage) => {
+    if (!conversationManager) return;
+    
+    try {
+      await conversationManager.playMessageAudio(message);
+    } catch (error) {
+      toast({
+        title: "Audio Error",
+        description: "Failed to play message audio",
+        variant: "destructive",
+      });
+    }
+  };
+
   const emptySlots = Math.max(0, 4 - friends.length);
 
   return (
@@ -259,6 +354,27 @@ export default function Home() {
                   </CardContent>
                 </Card>
               ))}
+            </div>
+          </div>
+
+          {/* Voice Conversation Section */}
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900 mb-6">Voice Input</h2>
+              <SpeechInput
+                onTextSubmit={handleSpeechInput}
+                isProcessing={isConversationLoading}
+              />
+            </div>
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900 mb-6">Live Conversation</h2>
+              <ConversationDisplay
+                conversationState={conversationState}
+                onPlayMessage={handlePlayMessage}
+                onStartConversation={handleStartConversation}
+                onStopConversation={handleStopConversation}
+                isLoading={isConversationLoading}
+              />
             </div>
           </div>
 

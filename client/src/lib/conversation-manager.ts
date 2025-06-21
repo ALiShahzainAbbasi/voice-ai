@@ -261,8 +261,6 @@ export class ConversationManager {
         voiceId: friend.voiceId,
         stability: friend.stability,
         similarity: friend.similarity,
-        playbackSpeed: 1.0,
-        masterVolume: 1.0,
       });
 
       const data = await response.json();
@@ -280,14 +278,12 @@ export class ConversationManager {
 
   private async generateHostVoice(message: ConversationMessage): Promise<void> {
     try {
-      // Use a neutral voice for host (you can configure this)
+      // Use a neutral voice for host
       const response = await apiRequest("POST", "/api/generate-voice", {
         text: message.text,
         voiceId: "EXAVITQu4vr4xnSDxMaL", // Sarah - neutral voice
         stability: 0.5,
         similarity: 0.75,
-        playbackSpeed: 1.0,
-        masterVolume: 1.0,
       });
 
       const data = await response.json();
