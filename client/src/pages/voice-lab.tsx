@@ -106,16 +106,19 @@ export default function VoiceLab() {
   const handleSpeechInput = async (speechText: string) => {
     if (!conversationManager || !speechText.trim()) return;
 
+    console.log("Voice input received:", speechText);
+
     // Stop any existing conversation and start new one
     if (conversationState.isActive) {
+      console.log("Stopping existing conversation");
       conversationManager.stopConversation();
       // Small delay to ensure clean stop
       await new Promise(resolve => setTimeout(resolve, 500));
     }
 
     // Add user message and start autonomous conversation
+    console.log("Adding user message and starting autonomous conversation");
     await conversationManager.addUserMessage(speechText);
-    await conversationManager.startConversation();
   };
 
   if (isLoading) {

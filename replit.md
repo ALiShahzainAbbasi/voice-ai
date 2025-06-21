@@ -134,6 +134,11 @@ This is a full-stack React application built for testing voice synthesis with di
 - June 21, 2025: Implemented voice conversation display with real-time audio playback
 - June 21, 2025: Created autonomous conversation engine where friends chat naturally without user input
 - June 21, 2025: Added happy moderator host system with smart conversation timing and flow control
+- June 21, 2025: Restructured app into two sections: Virtual Friends Manager and Voice Test Lab
+- June 21, 2025: Added navigation between friend management and voice testing features
+- June 21, 2025: Improved contextual conversation responses based on previous messages
+- June 21, 2025: Made voice input automatically start autonomous conversations
+- June 21, 2025: Enhanced conversation variety with content tracking to prevent repetition
 
 ## User Preferences
 

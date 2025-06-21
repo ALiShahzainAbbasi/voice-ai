@@ -98,6 +98,11 @@ export class ConversationManager {
 
     // Generate friend response to user
     await this.generateFriendResponse(text);
+    
+    // Start autonomous conversation after user input
+    if (!this.isAutoConversationActive) {
+      this.startAutonomousConversation();
+    }
   }
 
   private async generateFriendResponse(userText: string): Promise<void> {
