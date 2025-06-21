@@ -53,6 +53,15 @@ This is a full-stack React application built for testing voice synthesis with di
 - **Batch Testing**: Ability to test all friends' voices simultaneously
 - **Conversation Templates**: Pre-built scenarios for testing different conversation contexts
 
+### Voice Conversation System
+- **Web Speech API Integration**: Browser-based speech-to-text for hands-free input
+- **Live Conversation Manager**: Real-time chat orchestration with virtual friends
+- **Personality-Based Responses**: Context-aware response generation based on friend characteristics
+- **Host System**: Neutral conversation facilitator for smooth dialogue flow
+- **Auto Voice Generation**: Automatic text-to-speech for all conversation participants
+- **Message Threading**: Chronological conversation history with speaker identification
+- **Audio Message Playback**: Click-to-replay functionality for all spoken messages
+
 ### Data Persistence
 - **PostgreSQL Database**: Primary storage for friend configurations and voice mood data
 - **Local Storage**: Backup system for friend configurations and app settings
@@ -118,6 +127,9 @@ This is a full-stack React application built for testing voice synthesis with di
 - June 20, 2025: Enhanced voice selection with detailed metadata and working sample playback
 - June 20, 2025: Reorganized UI layout with Virtual Friends section positioned after Voice Text Input
 - June 20, 2025: Expanded personality types to 12 options with comprehensive descriptions
+- June 21, 2025: Integrated Web Speech API for hands-free voice input and conversation system
+- June 21, 2025: Added live conversation manager with personality-based response generation
+- June 21, 2025: Implemented voice conversation display with real-time audio playback
 
 ## User Preferences
 
