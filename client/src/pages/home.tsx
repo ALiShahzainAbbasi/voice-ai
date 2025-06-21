@@ -29,9 +29,7 @@ export default function Home() {
 
   const deleteFriendMutation = useMutation({
     mutationFn: async (id: number) => {
-      return await apiRequest(`/api/friends/${id}`, {
-        method: "DELETE",
-      });
+      return await apiRequest("DELETE", `/api/friends/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/friends'] });
@@ -173,6 +171,9 @@ export default function Home() {
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400">
             Create and manage your virtual friends with unique personalities and voices
+          </p>
+          <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
+            After creating friends, visit the Voice Test Lab to experience conversations
           </p>
         </div>
 

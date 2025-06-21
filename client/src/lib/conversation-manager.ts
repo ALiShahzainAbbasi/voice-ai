@@ -154,14 +154,21 @@ export class ConversationManager {
 
     const personalityInstruction = personalityPrompts[friend.personality as keyof typeof personalityPrompts] || "Respond naturally";
     
-    // For now, generate contextual responses based on personality
-    // In a real implementation, this would call an AI API
-    const responses = this.generateContextualResponse(friend, userText, personalityInstruction);
+    // Get the last message for context
+    const lastMessage = this.state.messages.length > 0 ? this.state.messages[this.state.messages.length - 1] : undefined;
+    
+    // Generate contextual responses based on personality and recent conversation
+    const responses = this.generateContextualResponse(friend, userText, lastMessage);
     return responses[Math.floor(Math.random() * responses.length)];
   }
 
-  private generateContextualResponse(friend: Friend, userText: string, personalityInstruction: string): string[] {
+  private generateContextualResponse(friend: Friend, userText: string, lastMessage?: ConversationMessage): string[] {
     const lowerText = userText.toLowerCase();
+    
+    // If there's a recent message, try to respond contextually to it
+    if (lastMessage && lastMessage.speaker !== 'friend') {
+      return this.getContextualResponses(friend.personality, lastMessage.text);
+    }
     
     // Generate personality-appropriate responses based on common topics
     if (lowerText.includes('hello') || lowerText.includes('hi') || lowerText.includes('hey')) {
@@ -173,6 +180,92 @@ export class ConversationManager {
     } else {
       return this.getGeneralResponses(friend.personality, userText);
     }
+  }
+
+  private getContextualResponses(personality: string, previousText: string): string[] {
+    const lowerText = previousText.toLowerCase();
+    
+    // Analyze the previous message and generate personality-appropriate responses
+    const responses: Record<string, string[]> = {
+      cheerful: [
+        "That's such a great point! I love how optimistic you are about it!",
+        "Oh wow, that really resonates with me! Thanks for sharing that perspective!",
+        "You always know how to make things sound so positive! I admire that about you.",
+        "That's amazing! I'm getting so inspired just listening to you talk about it!"
+      ],
+      romantic: [
+        "The way you express yourself is just captivating... tell me more.",
+        "Your thoughts are like poetry to me. I could listen to you all day.",
+        "There's something so alluring about your perspective on this.",
+        "You have such a beautiful mind... I'm completely enchanted by your words."
+      ],
+      sarcastic: [
+        "Oh, how absolutely enlightening. Please, do go on with your fascinating insights.",
+        "Well, that's certainly one way to look at it. How very... unique of you.",
+        "Right, because that makes perfect sense. Obviously.",
+        "Fascinating. And here I thought I'd heard everything today."
+      ],
+      wise: [
+        "Your words carry deep wisdom. Let me reflect on what you've shared.",
+        "There are layers of truth in what you say. The wise person listens carefully.",
+        "You speak with the voice of experience. This reminds me of an old saying...",
+        "In your words, I hear echoes of ancient wisdom. How perceptive of you."
+      ],
+      unhinged: [
+        "WHOA! That just blew my mind! Like, COMPLETELY reorganized my brain patterns!",
+        "DUDE! That's so wild! It's like reality just did a backflip!",
+        "OH MY GOSH! That's giving me SO many chaotic ideas right now!",
+        "YESSS! That energy is exactly what this conversation needed!"
+      ]
+    };
+
+    // Check for specific topics and respond accordingly
+    if (lowerText.includes('sad') || lowerText.includes('down') || lowerText.includes('upset')) {
+      return this.getComfortingResponses(personality);
+    } else if (lowerText.includes('excited') || lowerText.includes('happy') || lowerText.includes('great')) {
+      return this.getEnthusiasticResponses(personality);
+    } else if (lowerText.includes('question') || lowerText.includes('wondering') || lowerText.includes('think')) {
+      return this.getThoughtfulResponses(personality);
+    }
+    
+    return responses[personality] || [
+      "That's really interesting. I hadn't thought about it that way before.",
+      "You make a valid point there. It's given me something to consider.",
+      "I appreciate you sharing that perspective with me."
+    ];
+  }
+
+  private getComfortingResponses(personality: string): string[] {
+    const responses: Record<string, string[]> = {
+      cheerful: ["Hey, it's okay to feel down sometimes! Tomorrow is a new day full of possibilities!"],
+      romantic: ["Oh darling, let me be here for you. Your heart is safe with me."],
+      gentle: ["I'm here with you. Sometimes we just need someone to sit with us in these moments."],
+      wise: ["Pain is part of the human experience. It teaches us compassion and strength."],
+      sarcastic: ["Well, that's life for you. At least you're not alone in feeling miserable."]
+    };
+    return responses[personality] || ["I hear you. That sounds really difficult."];
+  }
+
+  private getEnthusiasticResponses(personality: string): string[] {
+    const responses: Record<string, string[]> = {
+      cheerful: ["YES! I love your enthusiasm! It's absolutely contagious!"],
+      romantic: ["Your joy is radiant... it makes my heart sing to see you so happy."],
+      unhinged: ["YESSS! That energy is ELECTRIC! I'm vibrating with excitement!"],
+      confident: ["Now THAT'S what I'm talking about! That's the spirit!"],
+      playful: ["Ooh, I love when you get all excited like this! Tell me more!"]
+    };
+    return responses[personality] || ["That's wonderful! I love seeing you so happy."];
+  }
+
+  private getThoughtfulResponses(personality: string): string[] {
+    const responses: Record<string, string[]> = {
+      wise: ["That's a profound question. Let us ponder this together..."],
+      mysterious: ["Interesting... the answer you seek may not be what you expect..."],
+      gentle: ["Those are such thoughtful questions. You have a curious mind."],
+      authoritative: ["Good question. Here's what I think based on my experience..."],
+      melancholic: ["Sometimes the best questions are the ones without easy answers..."]
+    };
+    return responses[personality] || ["That's a really good question. Let me think about that."];
   }
 
   private getGreetingResponses(personality: string): string[] {
@@ -454,8 +547,11 @@ export class ConversationManager {
     // Select a random friend to speak
     const speaker = this.state.participants[Math.floor(Math.random() * this.state.participants.length)];
     
-    // Generate conversation topic or response
-    const conversationText = this.generateConversationContent(speaker);
+    // Get contextual content based on recent conversation
+    const lastMessage = this.state.messages.length > 0 ? this.state.messages[this.state.messages.length - 1] : undefined;
+    const conversationText = lastMessage && lastMessage.speaker !== 'friend' 
+      ? this.generateContextualConversationResponse(speaker, lastMessage)
+      : this.generateConversationContent(speaker);
     
     const friendMessage: ConversationMessage = {
       id: `friend-auto-${speaker.id}-${Date.now()}`,
@@ -470,6 +566,11 @@ export class ConversationManager {
     this.notifyStateChange();
 
     await this.generateFriendVoice(friendMessage, speaker);
+  }
+
+  private generateContextualConversationResponse(friend: Friend, lastMessage: ConversationMessage): string {
+    const responses = this.getContextualResponses(friend.personality, lastMessage.text);
+    return responses[Math.floor(Math.random() * responses.length)];
   }
 
   private generateConversationContent(friend: Friend): string {
