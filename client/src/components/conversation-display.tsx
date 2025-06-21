@@ -23,6 +23,8 @@ export function ConversationDisplay({
   isLoading = false 
 }: ConversationDisplayProps) {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  
+  console.log('ConversationDisplay render - participants:', conversationState.participants.length, 'isActive:', conversationState.isActive);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -123,7 +125,10 @@ export function ConversationDisplay({
                 </div>
               )}
               <Button 
-                onClick={onStartConversation}
+                onClick={() => {
+                  console.log('Start Conversation button clicked. Participants:', conversationState.participants.length);
+                  onStartConversation();
+                }}
                 disabled={conversationState.participants.length === 0 || isLoading}
                 className="bg-voice-blue text-white hover:bg-voice-blue hover:opacity-90"
               >

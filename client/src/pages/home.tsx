@@ -60,9 +60,11 @@ export default function Home() {
 
   // Initialize conversation manager when friends data changes
   useEffect(() => {
+    console.log('Friends data changed:', friends.length);
     if (friends.length > 0) {
       const manager = new ConversationManager(friends, setConversationState);
       setConversationManager(manager);
+      console.log('Conversation manager initialized with', friends.length, 'friends');
     } else {
       setConversationManager(null);
       setConversationState({
@@ -70,6 +72,7 @@ export default function Home() {
         isActive: false,
         participants: [],
       });
+      console.log('Conversation manager cleared - no friends');
     }
   }, [friends]);
 
@@ -189,7 +192,17 @@ export default function Home() {
 
   // Conversation handlers
   const handleStartConversation = async () => {
-    if (!conversationManager) return;
+    console.log('Start conversation clicked. Manager:', !!conversationManager, 'Friends:', friends.length);
+    
+    if (!conversationManager) {
+      console.log('No conversation manager available');
+      toast({
+        title: "Error",
+        description: "Conversation system not ready. Please refresh the page.",
+        variant: "destructive",
+      });
+      return;
+    }
     
     setIsConversationLoading(true);
     try {
@@ -199,9 +212,10 @@ export default function Home() {
         description: "Your virtual friends are ready to chat!",
       });
     } catch (error) {
+      console.error('Conversation start error:', error);
       toast({
         title: "Error",
-        description: "Failed to start conversation",
+        description: error instanceof Error ? error.message : "Failed to start conversation",
         variant: "destructive",
       });
     } finally {

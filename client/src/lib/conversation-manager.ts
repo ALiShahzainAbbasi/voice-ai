@@ -31,6 +31,9 @@ export class ConversationManager {
     };
     this.onStateChange = onStateChange;
     this.initializeAudioContext();
+    console.log('ConversationManager constructor - participants:', friends.length);
+    // Immediately notify about initial state
+    this.notifyStateChange();
   }
 
   private initializeAudioContext() {
@@ -47,6 +50,8 @@ export class ConversationManager {
   }
 
   public async startConversation(): Promise<void> {
+    console.log('Starting conversation with participants:', this.state.participants.length);
+    
     if (this.state.participants.length === 0) {
       throw new Error('No virtual friends available for conversation');
     }
@@ -62,11 +67,14 @@ export class ConversationManager {
       timestamp: new Date(),
     };
 
+    console.log('Adding host message:', hostMessage.text);
     this.state.messages.push(hostMessage);
     this.notifyStateChange();
 
-    // Generate host voice for greeting
-    await this.generateHostVoice(hostMessage);
+    // Generate host voice for greeting (don't await to avoid blocking)
+    this.generateHostVoice(hostMessage).catch(error => {
+      console.error('Failed to generate host voice:', error);
+    });
   }
 
   public async addUserMessage(text: string): Promise<void> {
