@@ -22,6 +22,8 @@ export class ConversationManager {
   private state: ConversationState;
   private onStateChange: (state: ConversationState) => void;
   private audioContext: AudioContext | null = null;
+  private conversationTimer: NodeJS.Timeout | null = null;
+  private isAutoConversationActive: boolean = false;
 
   constructor(friends: Friend[], onStateChange: (state: ConversationState) => void) {
     this.state = {
@@ -75,6 +77,9 @@ export class ConversationManager {
     this.generateHostVoice(hostMessage).catch(error => {
       console.error('Failed to generate host voice:', error);
     });
+
+    // Start autonomous conversation after a brief delay
+    this.startAutonomousConversation();
   }
 
   public async addUserMessage(text: string): Promise<void> {
@@ -338,7 +343,189 @@ export class ConversationManager {
     this.state.isActive = false;
     this.state.messages = [];
     this.state.lastSpeaker = undefined;
+    this.stopAutonomousConversation();
     this.notifyStateChange();
+  }
+
+  private startAutonomousConversation(): void {
+    if (this.isAutoConversationActive) return;
+    
+    this.isAutoConversationActive = true;
+    console.log('Starting autonomous conversation mode');
+    
+    // Start the conversation flow after 3 seconds to let host greeting play
+    setTimeout(() => {
+      this.generateNextConversationTurn();
+    }, 3000);
+  }
+
+  private stopAutonomousConversation(): void {
+    this.isAutoConversationActive = false;
+    if (this.conversationTimer) {
+      clearTimeout(this.conversationTimer);
+      this.conversationTimer = null;
+    }
+    console.log('Stopped autonomous conversation mode');
+  }
+
+  private async generateNextConversationTurn(): Promise<void> {
+    if (!this.isAutoConversationActive || !this.state.isActive) return;
+
+    try {
+      // Decide who speaks next: friend or host
+      const shouldHostSpeak = Math.random() < 0.3; // 30% chance for host to speak
+      
+      if (shouldHostSpeak) {
+        await this.generateHostComment();
+      } else {
+        await this.generateFriendConversation();
+      }
+
+      // Schedule next turn (3-8 seconds later)
+      const nextDelay = 3000 + Math.random() * 5000;
+      this.conversationTimer = setTimeout(() => {
+        this.generateNextConversationTurn();
+      }, nextDelay);
+
+    } catch (error) {
+      console.error('Error in autonomous conversation:', error);
+      // Retry after a longer delay
+      this.conversationTimer = setTimeout(() => {
+        this.generateNextConversationTurn();
+      }, 5000);
+    }
+  }
+
+  private async generateHostComment(): Promise<void> {
+    const hostComments = [
+      "That's a great point! What do you all think?",
+      "Interesting perspective! Anyone else want to weigh in?",
+      "I love the energy here! Keep it going!",
+      "Fascinating discussion! Let's hear more thoughts.",
+      "Great conversation, everyone! What else is on your minds?",
+      "You're all so insightful! This is wonderful to hear.",
+      "That brings up an interesting question...",
+      "I'm curious to hear what others think about this.",
+      "What a thoughtful group! Please, continue.",
+      "This is exactly the kind of discussion I hoped for!"
+    ];
+
+    const hostMessage: ConversationMessage = {
+      id: `host-auto-${Date.now()}`,
+      speaker: 'host',
+      text: hostComments[Math.floor(Math.random() * hostComments.length)],
+      timestamp: new Date(),
+    };
+
+    this.state.messages.push(hostMessage);
+    this.state.lastSpeaker = 'Host';
+    this.notifyStateChange();
+
+    await this.generateHostVoice(hostMessage);
+  }
+
+  private async generateFriendConversation(): Promise<void> {
+    if (this.state.participants.length === 0) return;
+
+    // Select a random friend to speak
+    const speaker = this.state.participants[Math.floor(Math.random() * this.state.participants.length)];
+    
+    // Generate conversation topic or response
+    const conversationText = this.generateConversationContent(speaker);
+    
+    const friendMessage: ConversationMessage = {
+      id: `friend-auto-${speaker.id}-${Date.now()}`,
+      speaker: 'friend',
+      friendId: speaker.id,
+      text: conversationText,
+      timestamp: new Date(),
+    };
+
+    this.state.messages.push(friendMessage);
+    this.state.lastSpeaker = speaker.name;
+    this.notifyStateChange();
+
+    await this.generateFriendVoice(friendMessage, speaker);
+  }
+
+  private generateConversationContent(friend: Friend): string {
+    const conversationTopics = {
+      cheerful: [
+        "You know what? I had the most amazing day today! The weather was perfect and I just felt so grateful for everything.",
+        "I've been thinking about how wonderful it is that we can all connect like this. Technology is incredible!",
+        "Has anyone tried that new coffee place downtown? I heard they have the most delicious pastries!",
+        "I just wanted to say how much I appreciate all of you. This conversation is making my day so much brighter!"
+      ],
+      romantic: [
+        "There's something magical about deep conversations like this... it really brings people together.",
+        "I love how we can share our thoughts so openly. It feels so intimate and special.",
+        "The way you all express yourselves is just beautiful. Your words touch my heart.",
+        "Moments like these remind me why human connection is so precious and meaningful."
+      ],
+      unhinged: [
+        "Okay but hear me out - what if we're all just characters in someone else's dream right now?!",
+        "I just had this WILD idea! What if we started a flash mob but everyone has to wear banana costumes?",
+        "Does anyone else ever just want to run through a field screaming about the absurdity of existence?",
+        "PLOT TWIST: What if gravity is just really committed to its job and we're all actually floating?!"
+      ],
+      sarcastic: [
+        "Oh wonderful, another deep philosophical discussion. Because that's exactly what I needed today.",
+        "Well, isn't this just delightful. Here I am, sharing my innermost thoughts with complete strangers.",
+        "Sure, let's all just open up and share our feelings. What could possibly go wrong?",
+        "I'm just thrilled to be here discussing the meaning of life with you fine people."
+      ],
+      wise: [
+        "In my experience, the most profound conversations often happen when we least expect them.",
+        "There's an old saying: 'The quality of our conversations determines the quality of our relationships.'",
+        "I've learned that listening is often more valuable than speaking. We learn so much from each other.",
+        "Life has taught me that every person we meet has something valuable to teach us, if we're open to learning."
+      ],
+      mysterious: [
+        "Some secrets are best shared in whispers... but perhaps this is one worth speaking aloud.",
+        "I sense there are deeper currents flowing beneath this conversation than what appears on the surface.",
+        "The shadows of our thoughts often reveal more truth than the light of our words.",
+        "There are things I could tell you... but some knowledge comes only when you're ready to receive it."
+      ],
+      aggressive: [
+        "You know what I think? We need to stop beating around the bush and get to the real issues!",
+        "I'm tired of small talk! Let's discuss something that actually matters and makes a difference!",
+        "Why do people always dance around important topics? Let's be direct and honest for once!",
+        "We have the power to change things if we stop being passive and start taking action!"
+      ],
+      gentle: [
+        "I hope everyone is feeling comfortable and welcome in this space we've created together.",
+        "Please, take your time sharing. There's no rush, and every voice here is valued and important.",
+        "I find such peace in conversations like this, where we can simply be ourselves without judgment.",
+        "Sometimes the softest words carry the most meaning. I'm grateful we can speak so openly here."
+      ],
+      confident: [
+        "I believe we're exactly where we need to be right now, having exactly the conversation we're meant to have.",
+        "You know, I've always found that the best discussions happen when people speak with genuine conviction.",
+        "I'm confident that each of us brings something unique and valuable to this conversation.",
+        "There's real power in authentic dialogue. We're creating something meaningful here together."
+      ],
+      playful: [
+        "Okay, okay, but can we talk about something fun? Like... what superpower would you choose and why?",
+        "You know what we need? More laughter in this conversation! Life's too short to be serious all the time!",
+        "I dare someone to share their most embarrassing moment. I'll go first if you want!",
+        "Let's play a game! Everyone has to share one totally random fact about themselves!"
+      ],
+      melancholic: [
+        "Sometimes I wonder if we're all just searching for connection in this vast, lonely universe.",
+        "There's a bittersweet beauty in conversations like this... fleeting moments of understanding.",
+        "I often think about how we're all carrying our own invisible burdens, yet we still find ways to reach out.",
+        "The sadness I feel isn't despair - it's more like a deep appreciation for the fragility of these moments."
+      ],
+      authoritative: [
+        "Based on my experience, the most productive conversations follow a clear structure and purpose.",
+        "I believe it's important that we establish some ground rules for this discussion moving forward.",
+        "Let me share some insights I've gained over the years about effective communication and dialogue.",
+        "The key to meaningful conversation is maintaining focus and ensuring everyone contributes constructively."
+      ]
+    };
+
+    const personalityTopics = conversationTopics[friend.personality as keyof typeof conversationTopics] || conversationTopics.cheerful;
+    return personalityTopics[Math.floor(Math.random() * personalityTopics.length)];
   }
 
   public getState(): ConversationState {

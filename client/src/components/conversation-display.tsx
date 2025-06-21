@@ -104,9 +104,9 @@ export function ConversationDisplay({
               </div>
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Voice Conversation</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Autonomous Voice Chat</h3>
               <p className="text-gray-600 mb-4">
-                Start a voice conversation with your virtual friends. They'll respond in their unique personalities.
+                Your virtual friends will chat naturally among themselves with a happy moderator keeping the conversation flowing. Just sit back and listen!
               </p>
               {conversationState.participants.length === 0 ? (
                 <p className="text-sm text-amber-600 mb-4">
@@ -126,14 +126,14 @@ export function ConversationDisplay({
               )}
               <Button 
                 onClick={() => {
-                  console.log('Start Conversation button clicked. Participants:', conversationState.participants.length);
+                  console.log('Start Autonomous Conversation button clicked. Participants:', conversationState.participants.length);
                   onStartConversation();
                 }}
                 disabled={conversationState.participants.length === 0 || isLoading}
                 className="bg-voice-blue text-white hover:bg-voice-blue hover:opacity-90"
               >
                 <MessageCircle className="w-4 h-4 mr-2" />
-                Start Conversation
+                Start Autonomous Chat
               </Button>
             </div>
           </div>
@@ -148,9 +148,9 @@ export function ConversationDisplay({
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-900">Live Conversation</h3>
           <div className="flex items-center space-x-2">
-            <Badge variant="secondary" className="bg-green-100 text-green-700">
+            <Badge variant="secondary" className="bg-green-100 text-green-700 animate-pulse">
               <Volume2 className="w-3 h-3 mr-1" />
-              Active
+              Auto Chat Active
             </Badge>
             <Button
               onClick={onStopConversation}
