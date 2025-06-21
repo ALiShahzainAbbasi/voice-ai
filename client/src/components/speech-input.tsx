@@ -54,7 +54,19 @@ export function SpeechInput({ onTextSubmit, isProcessing = false }: SpeechInputP
           }
         }
         
-        setTranscript(prev => prev + finalTranscript + interimTranscript);
+        // Only update with final transcript to avoid duplication
+        if (finalTranscript) {
+          setTranscript(prev => prev + finalTranscript);
+        }
+        // For interim results, replace the whole transcript temporarily
+        if (interimTranscript && !finalTranscript) {
+          setTranscript(prev => {
+            // Remove any previous interim results and add new ones
+            const lastFinalIndex = prev.lastIndexOf('.');
+            const baseTxt = lastFinalIndex >= 0 ? prev.substring(0, lastFinalIndex + 1) : prev;
+            return baseTxt + interimTranscript;
+          });
+        }
       };
       
       recognition.onerror = (event: any) => {

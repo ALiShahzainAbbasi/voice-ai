@@ -24,6 +24,8 @@ export class ConversationManager {
   private audioContext: AudioContext | null = null;
   private conversationTimer: NodeJS.Timeout | null = null;
   private isAutoConversationActive: boolean = false;
+  private usedHostComments: Set<string> = new Set();
+  private usedFriendContent: Map<number, Set<string>> = new Map();
 
   constructor(friends: Friend[], onStateChange: (state: ConversationState) => void) {
     this.state = {
@@ -407,13 +409,35 @@ export class ConversationManager {
       "That brings up an interesting question...",
       "I'm curious to hear what others think about this.",
       "What a thoughtful group! Please, continue.",
-      "This is exactly the kind of discussion I hoped for!"
+      "This is exactly the kind of discussion I hoped for!",
+      "Wonderful insights from everyone today!",
+      "I'm really enjoying hearing all your perspectives.",
+      "Such thoughtful contributions from the group!",
+      "Let's keep this momentum going, shall we?",
+      "You've all given me so much to think about.",
+      "The diversity of thoughts here is amazing!",
+      "Please, don't let me interrupt - continue!",
+      "This conversation is flowing beautifully.",
+      "Each of you brings such unique wisdom.",
+      "I'm grateful for this open dialogue we're having."
     ];
+
+    // Filter out already used comments
+    const availableComments = hostComments.filter(comment => !this.usedHostComments.has(comment));
+    
+    // Reset if all comments have been used
+    if (availableComments.length === 0) {
+      this.usedHostComments.clear();
+      availableComments.push(...hostComments);
+    }
+
+    const selectedComment = availableComments[Math.floor(Math.random() * availableComments.length)];
+    this.usedHostComments.add(selectedComment);
 
     const hostMessage: ConversationMessage = {
       id: `host-auto-${Date.now()}`,
       speaker: 'host',
-      text: hostComments[Math.floor(Math.random() * hostComments.length)],
+      text: selectedComment,
       timestamp: new Date(),
     };
 
@@ -449,18 +473,31 @@ export class ConversationManager {
   }
 
   private generateConversationContent(friend: Friend): string {
+    // Initialize friend's used content set if not exists
+    if (!this.usedFriendContent.has(friend.id)) {
+      this.usedFriendContent.set(friend.id, new Set());
+    }
+
     const conversationTopics = {
       cheerful: [
         "You know what? I had the most amazing day today! The weather was perfect and I just felt so grateful for everything.",
         "I've been thinking about how wonderful it is that we can all connect like this. Technology is incredible!",
         "Has anyone tried that new coffee place downtown? I heard they have the most delicious pastries!",
-        "I just wanted to say how much I appreciate all of you. This conversation is making my day so much brighter!"
+        "I just wanted to say how much I appreciate all of you. This conversation is making my day so much brighter!",
+        "There's something magical about positive energy - it's so contagious! I love being around uplifting people.",
+        "I've been practicing gratitude lately and it's amazing how it changes your whole perspective on life.",
+        "The sunset yesterday was absolutely breathtaking! Sometimes nature just reminds you how beautiful the world is.",
+        "I met the kindest stranger today who helped me when I dropped my groceries. Faith in humanity restored!"
       ],
       romantic: [
         "There's something magical about deep conversations like this... it really brings people together.",
         "I love how we can share our thoughts so openly. It feels so intimate and special.",
         "The way you all express yourselves is just beautiful. Your words touch my heart.",
-        "Moments like these remind me why human connection is so precious and meaningful."
+        "Moments like these remind me why human connection is so precious and meaningful.",
+        "Your voices are like music to my ears... each one unique and enchanting.",
+        "I find myself getting lost in the poetry of your words. How beautifully you all speak.",
+        "There's an intimacy in sharing thoughts that goes beyond physical presence, don't you think?",
+        "Sometimes the most romantic thing is simply being heard and understood completely."
       ],
       unhinged: [
         "Okay but hear me out - what if we're all just characters in someone else's dream right now?!",
@@ -472,7 +509,11 @@ export class ConversationManager {
         "Oh wonderful, another deep philosophical discussion. Because that's exactly what I needed today.",
         "Well, isn't this just delightful. Here I am, sharing my innermost thoughts with complete strangers.",
         "Sure, let's all just open up and share our feelings. What could possibly go wrong?",
-        "I'm just thrilled to be here discussing the meaning of life with you fine people."
+        "I'm just thrilled to be here discussing the meaning of life with you fine people.",
+        "How refreshing, everyone's being so genuine and authentic. My heart is practically bursting with joy.",
+        "Oh good, we're having one of those conversations where everyone pretends to be deep and meaningful.",
+        "Nothing says 'good time' like a group therapy session disguised as casual chat.",
+        "I love how we're all trying so hard to sound intellectual. It's absolutely adorable."
       ],
       wise: [
         "In my experience, the most profound conversations often happen when we least expect them.",
@@ -525,7 +566,21 @@ export class ConversationManager {
     };
 
     const personalityTopics = conversationTopics[friend.personality as keyof typeof conversationTopics] || conversationTopics.cheerful;
-    return personalityTopics[Math.floor(Math.random() * personalityTopics.length)];
+    const usedContent = this.usedFriendContent.get(friend.id)!;
+    
+    // Filter out already used content
+    const availableContent = personalityTopics.filter(content => !usedContent.has(content));
+    
+    // Reset if all content has been used
+    if (availableContent.length === 0) {
+      usedContent.clear();
+      availableContent.push(...personalityTopics);
+    }
+
+    const selectedContent = availableContent[Math.floor(Math.random() * availableContent.length)];
+    usedContent.add(selectedContent);
+    
+    return selectedContent;
   }
 
   public getState(): ConversationState {

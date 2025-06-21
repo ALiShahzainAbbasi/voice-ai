@@ -66,14 +66,15 @@ export async function generateVoiceForAllFriends(
   playbackSpeed: number = 1.0,
   masterVolume: number = 1.0
 ): Promise<void> {
-  const promises = friends.map(friend => 
-    generateVoice(friend, text, playbackSpeed, masterVolume)
-  );
-  
-  try {
-    await Promise.all(promises);
-  } catch (error) {
-    console.error("Failed to generate voices for all friends:", error);
-    throw error;
+  // Generate voices sequentially to prevent audio overlap
+  for (const friend of friends) {
+    try {
+      await generateVoice(friend, text, playbackSpeed, masterVolume);
+      // Small delay between friends to prevent audio overlap
+      await new Promise(resolve => setTimeout(resolve, 500));
+    } catch (error) {
+      console.error(`Failed to generate voice for ${friend.name}:`, error);
+      // Continue with other friends even if one fails
+    }
   }
 }
