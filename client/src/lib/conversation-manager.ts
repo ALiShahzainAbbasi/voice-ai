@@ -96,10 +96,10 @@ export class ConversationManager {
     this.state.lastSpeaker = 'user';
     this.notifyStateChange();
 
-    // Generate friend response to user
+    // Generate friend response to user text specifically
     await this.generateFriendResponse(text);
     
-    // Start autonomous conversation after user input
+    // Start autonomous conversation using the user's input as context
     if (!this.isAutoConversationActive) {
       this.startAutonomousConversation();
     }
@@ -453,10 +453,10 @@ export class ConversationManager {
     this.isAutoConversationActive = true;
     console.log('Starting autonomous conversation mode');
     
-    // Start the conversation flow after 3 seconds to let host greeting play
+    // Start the conversation flow after 4 seconds to let any current audio finish
     setTimeout(() => {
       this.generateNextConversationTurn();
-    }, 3000);
+    }, 4000);
   }
 
   private stopAutonomousConversation(): void {
@@ -472,6 +472,12 @@ export class ConversationManager {
     if (!this.isAutoConversationActive || !this.state.isActive) return;
 
     try {
+      // Wait for any current audio to finish to prevent overlap
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Double-check if conversation is still active after delay
+      if (!this.isAutoConversationActive || !this.state.isActive) return;
+
       // Decide who speaks next: friend or host
       const shouldHostSpeak = Math.random() < 0.3; // 30% chance for host to speak
       
@@ -481,8 +487,8 @@ export class ConversationManager {
         await this.generateFriendConversation();
       }
 
-      // Schedule next turn (3-8 seconds later)
-      const nextDelay = 3000 + Math.random() * 5000;
+      // Schedule next turn with longer delay to prevent overlap (6-10 seconds)
+      const nextDelay = 6000 + Math.random() * 4000;
       this.conversationTimer = setTimeout(() => {
         this.generateNextConversationTurn();
       }, nextDelay);
@@ -492,7 +498,7 @@ export class ConversationManager {
       // Retry after a longer delay
       this.conversationTimer = setTimeout(() => {
         this.generateNextConversationTurn();
-      }, 5000);
+      }, 8000);
     }
   }
 

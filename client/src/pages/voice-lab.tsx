@@ -108,16 +108,20 @@ export default function VoiceLab() {
 
     console.log("Voice input received:", speechText);
 
-    // Stop any existing conversation and start new one
+    // Stop any existing conversation completely
     if (conversationState.isActive) {
       console.log("Stopping existing conversation");
       conversationManager.stopConversation();
-      // Small delay to ensure clean stop
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Wait longer to ensure complete stop
+      await new Promise(resolve => setTimeout(resolve, 1000));
     }
 
-    // Add user message and start autonomous conversation
-    console.log("Adding user message and starting autonomous conversation");
+    // Clear any existing messages and start fresh
+    conversationManager.stopConversation();
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    // Add the speech input as user message and trigger contextual responses
+    console.log("Starting new conversation with speech input as context");
     await conversationManager.addUserMessage(speechText);
   };
 
