@@ -517,17 +517,35 @@ export class ConversationManager {
       "Please, don't let me interrupt - continue!",
       "This conversation is flowing beautifully.",
       "Each of you brings such unique wisdom.",
-      "I'm grateful for this open dialogue we're having."
+      "I'm grateful for this open dialogue we're having.",
+      "The depth of your thoughts continues to amaze me.",
+      "I appreciate how respectfully you're all engaging.",
+      "Your different viewpoints create such rich dialogue.",
+      "This is the kind of conversation that stays with you.",
+      "I'm learning so much from each of your perspectives.",
+      "The way you build on each other's ideas is beautiful.",
+      "Thank you for creating such a welcoming space here.",
+      "Your authenticity makes this conversation special.",
+      "I'm honored to facilitate this meaningful exchange.",
+      "The wisdom you're sharing deserves to be heard."
     ];
 
-    // Filter out already used comments
-    const availableComments = hostComments.filter(comment => !this.usedHostComments.has(comment));
+    // Filter out already used comments and recently used phrases
+    const recentMessages = this.state.messages.slice(-10);
+    const recentTexts = new Set(recentMessages.map(m => m.text));
+    
+    const availableComments = hostComments.filter(comment => 
+      !this.usedHostComments.has(comment) && !recentTexts.has(comment)
+    );
     
     // Reset if all comments have been used
     if (availableComments.length === 0) {
       this.usedHostComments.clear();
-      availableComments.push(...hostComments);
+      availableComments.push(...hostComments.filter(comment => !recentTexts.has(comment)));
     }
+
+    // If still no available comments, skip this turn
+    if (availableComments.length === 0) return;
 
     const selectedComment = availableComments[Math.floor(Math.random() * availableComments.length)];
     this.usedHostComments.add(selectedComment);
@@ -584,6 +602,10 @@ export class ConversationManager {
       this.usedFriendContent.set(friend.id, new Set());
     }
 
+    // Check recent messages to avoid repetition
+    const recentMessages = this.state.messages.slice(-15);
+    const recentTexts = new Set(recentMessages.map(m => m.text));
+
     const conversationTopics = {
       cheerful: [
         "You know what? I had the most amazing day today! The weather was perfect and I just felt so grateful for everything.",
@@ -593,7 +615,11 @@ export class ConversationManager {
         "There's something magical about positive energy - it's so contagious! I love being around uplifting people.",
         "I've been practicing gratitude lately and it's amazing how it changes your whole perspective on life.",
         "The sunset yesterday was absolutely breathtaking! Sometimes nature just reminds you how beautiful the world is.",
-        "I met the kindest stranger today who helped me when I dropped my groceries. Faith in humanity restored!"
+        "I met the kindest stranger today who helped me when I dropped my groceries. Faith in humanity restored!",
+        "Did you know that smiling actually releases endorphins? That's probably why I'm always so happy!",
+        "I love how every day brings new opportunities to make someone's day a little brighter.",
+        "There's this amazing hiking trail I discovered last week - the views were absolutely stunning!",
+        "I've been reading this book about mindfulness and it's completely changed how I see the world."
       ],
       romantic: [
         "There's something magical about deep conversations like this... it really brings people together.",
@@ -674,13 +700,26 @@ export class ConversationManager {
     const personalityTopics = conversationTopics[friend.personality as keyof typeof conversationTopics] || conversationTopics.cheerful;
     const usedContent = this.usedFriendContent.get(friend.id)!;
     
-    // Filter out already used content
-    const availableContent = personalityTopics.filter(content => !usedContent.has(content));
+    // Filter out already used content AND recently said phrases
+    const availableContent = personalityTopics.filter(content => 
+      !usedContent.has(content) && !recentTexts.has(content)
+    );
     
-    // Reset if all content has been used
+    // Reset if all content has been used, but still avoid recent messages
     if (availableContent.length === 0) {
       usedContent.clear();
-      availableContent.push(...personalityTopics);
+      const resetContent = personalityTopics.filter(content => !recentTexts.has(content));
+      if (resetContent.length > 0) {
+        availableContent.push(...resetContent);
+      } else {
+        // In extreme case, just use oldest content
+        availableContent.push(...personalityTopics.slice(0, 3));
+      }
+    }
+
+    // If still no content, return a generic response
+    if (availableContent.length === 0) {
+      return `That's really interesting. I'd love to hear more about that.`;
     }
 
     const selectedContent = availableContent[Math.floor(Math.random() * availableContent.length)];

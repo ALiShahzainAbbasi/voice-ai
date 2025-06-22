@@ -158,16 +158,17 @@ export default function VoiceLab() {
           </div>
         ) : (
           <div className="grid gap-8">
-            {/* Voice Control Panel */}
+            {/* Live Conversation - Moved to top */}
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
               <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
-                Voice Controls
+                Live Conversation
               </h2>
-              <VoiceControlPanel
-                playbackSpeed={playbackSpeed}
-                onPlaybackSpeedChange={setPlaybackSpeed}
-                masterVolume={masterVolume}
-                onMasterVolumeChange={setMasterVolume}
+              <ConversationDisplay
+                conversationState={conversationState}
+                onPlayMessage={handlePlayMessage}
+                onStartConversation={handleStartConversation}
+                onStopConversation={handleStopConversation}
+                isLoading={false}
               />
             </div>
 
@@ -206,17 +207,16 @@ export default function VoiceLab() {
               <ConversationIntegration onTextGenerated={handleTextGenerated} />
             </div>
 
-            {/* Live Conversation */}
+            {/* Voice Control Panel - Moved to bottom */}
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
               <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
-                Live Conversation
+                Voice Controls
               </h2>
-              <ConversationDisplay
-                conversationState={conversationState}
-                onPlayMessage={handlePlayMessage}
-                onStartConversation={handleStartConversation}
-                onStopConversation={handleStopConversation}
-                isLoading={false}
+              <VoiceControlPanel
+                playbackSpeed={playbackSpeed}
+                onPlaybackSpeedChange={setPlaybackSpeed}
+                masterVolume={masterVolume}
+                onMasterVolumeChange={setMasterVolume}
               />
             </div>
           </div>

@@ -66,15 +66,30 @@ export async function generateVoiceForAllFriends(
   playbackSpeed: number = 1.0,
   masterVolume: number = 1.0
 ): Promise<void> {
-  // Generate voices sequentially to prevent audio overlap
-  for (const friend of friends) {
+  // Generate voices sequentially with proper audio timing to prevent overlap
+  for (let i = 0; i < friends.length; i++) {
+    const friend = friends[i];
     try {
+      console.log(`Generating voice for ${friend.name} (${i + 1}/${friends.length})`);
+      
+      // Generate and play voice
       await generateVoice(friend, text, playbackSpeed, masterVolume);
-      // Small delay between friends to prevent audio overlap
-      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Wait for audio to finish before starting next one
+      // Estimate audio duration based on text length (approximately 150 words per minute)
+      const estimatedDurationMs = (text.split(' ').length / 150) * 60 * 1000;
+      const minDelay = Math.max(2000, estimatedDurationMs + 1000); // At least 2 seconds, plus estimated duration
+      
+      if (i < friends.length - 1) { // Don't delay after the last friend
+        console.log(`Waiting ${minDelay}ms before next friend...`);
+        await new Promise(resolve => setTimeout(resolve, minDelay));
+      }
     } catch (error) {
       console.error(`Failed to generate voice for ${friend.name}:`, error);
-      // Continue with other friends even if one fails
+      // Continue with other friends even if one fails, but still wait to maintain timing
+      if (i < friends.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
     }
   }
 }
