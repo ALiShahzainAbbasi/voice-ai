@@ -498,36 +498,21 @@ export class ConversationManager {
 
   private async generateHostComment(): Promise<void> {
     const hostComments = [
-      "That's a great point! What do you all think?",
-      "Interesting perspective! Anyone else want to weigh in?",
-      "I love the energy here! Keep it going!",
-      "Fascinating discussion! Let's hear more thoughts.",
-      "Great conversation, everyone! What else is on your minds?",
-      "You're all so insightful! This is wonderful to hear.",
-      "That brings up an interesting question...",
-      "I'm curious to hear what others think about this.",
-      "What a thoughtful group! Please, continue.",
-      "This is exactly the kind of discussion I hoped for!",
-      "Wonderful insights from everyone today!",
-      "I'm really enjoying hearing all your perspectives.",
-      "Such thoughtful contributions from the group!",
-      "Let's keep this momentum going, shall we?",
-      "You've all given me so much to think about.",
-      "The diversity of thoughts here is amazing!",
-      "Please, don't let me interrupt - continue!",
-      "This conversation is flowing beautifully.",
-      "Each of you brings such unique wisdom.",
-      "I'm grateful for this open dialogue we're having.",
-      "The depth of your thoughts continues to amaze me.",
-      "I appreciate how respectfully you're all engaging.",
-      "Your different viewpoints create such rich dialogue.",
-      "This is the kind of conversation that stays with you.",
-      "I'm learning so much from each of your perspectives.",
-      "The way you build on each other's ideas is beautiful.",
-      "Thank you for creating such a welcoming space here.",
-      "Your authenticity makes this conversation special.",
-      "I'm honored to facilitate this meaningful exchange.",
-      "The wisdom you're sharing deserves to be heard."
+      "That reminds me of the discussion we had at book club last month about shared experiences - you're all bringing such personal stories to this!",
+      "This is exactly like those late-night conversations we used to have in the dorm common room - remember how we'd solve the world's problems over pizza?",
+      "I love how this is turning into one of those authentic moments, like when we were all stuck in that airport during the snowstorm and really got to know each other.",
+      "You know, this conversation has the same energy as that camping trip where we stayed up around the fire sharing stories until sunrise.",
+      "This reminds me of that amazing dinner party at Rachel's place where everyone was so engaged - real connections happening here!",
+      "I'm getting flashbacks to our road trip conversations - remember how we'd drive for hours just talking about everything and nothing?",
+      "This feels like one of those rare moments when everyone's guards are down, like that time we all opened up during the power outage last winter.",
+      "You're all bringing the same honesty that made our college study group so special - we'd start with homework and end up discussing life!",
+      "This has the same authentic vibe as those Sunday morning conversations over coffee at Jake's kitchen table.",
+      "I love when conversations flow like this - it's giving me the same feeling as that spontaneous heart-to-heart we had at the beach last summer.",
+      "This is turning into one of those conversations we'll reference months from now, like 'remember when we talked about...'",
+      "You're all being so genuine - it reminds me of that vulnerable moment we shared during Sarah's going-away party.",
+      "This feels like those deep conversations we'd have during long walks through the city, when we'd lose track of time completely.",
+      "I'm getting the same energy as when we all stayed up talking after Mike's graduation party - real, unfiltered thoughts being shared.",
+      "This conversation is developing that special quality, like when we were all snowed in at the cabin and had nothing but time to really connect."
     ];
 
     // Filter out already used comments and recently used phrases
@@ -651,52 +636,52 @@ export class ConversationManager {
         "That time you insisted we take the 'scenic route' to the beach and we got lost for two hours? Peak navigation skills right there."
       ],
       wise: [
-        "In my experience, the most profound conversations often happen when we least expect them.",
-        "There's an old saying: 'The quality of our conversations determines the quality of our relationships.'",
-        "I've learned that listening is often more valuable than speaking. We learn so much from each other.",
-        "Life has taught me that every person we meet has something valuable to teach us, if we're open to learning."
+        "Remember that philosophy seminar with Professor Williams at State University? His lecture on Socratic dialogue still influences how I approach conversations today.",
+        "That book club meeting last month where we discussed 'Sapiens' reminded me how perspective changes when we consider the bigger picture of human history.",
+        "I was thinking about our conversation with your grandfather during Thanksgiving 2021 - his stories about the Great Depression taught me more about resilience than any book.",
+        "The meditation retreat I attended in Colorado last summer taught me that listening is just as important as speaking. Remember how I used to interrupt everyone before that?"
       ],
       mysterious: [
-        "Some secrets are best shared in whispers... but perhaps this is one worth speaking aloud.",
-        "I sense there are deeper currents flowing beneath this conversation than what appears on the surface.",
-        "The shadows of our thoughts often reveal more truth than the light of our words.",
-        "There are things I could tell you... but some knowledge comes only when you're ready to receive it."
+        "That strange encounter we had at the antique shop on Elm Street last October... I still wonder if the old woman who sold us those vintage postcards knew something we didn't.",
+        "Remember the locked room we found in your grandmother's attic during the estate sale? I never told you what I saw in that diary we found there.",
+        "That night we got lost driving back from the observatory, when all our GPS devices stopped working simultaneously... some things can't be easily explained.",
+        "I've been having dreams about that abandoned house we explored in Salem during our ghost tour. There's something about that place I can't shake."
       ],
       aggressive: [
-        "You know what I think? We need to stop beating around the bush and get to the real issues!",
-        "I'm tired of small talk! Let's discuss something that actually matters and makes a difference!",
-        "Why do people always dance around important topics? Let's be direct and honest for once!",
-        "We have the power to change things if we stop being passive and start taking action!"
+        "Look, I'm going to be straight with you - that meeting with the board of directors last week was a complete waste of time! We need to push harder for real changes.",
+        "I'm sick of how they handled the layoffs at our old company in March. Someone needs to call them out on their terrible management decisions!",
+        "Remember when we tried to organize that protest against the university's tuition hike in 2020? We should have been more aggressive about it!",
+        "That contractor who ripped off my neighbor last month needs to be reported. I'm not going to sit back and let people get scammed in our community!"
       ],
       gentle: [
-        "I hope everyone is feeling comfortable and welcome in this space we've created together.",
-        "Please, take your time sharing. There's no rush, and every voice here is valued and important.",
-        "I find such peace in conversations like this, where we can simply be ourselves without judgment.",
-        "Sometimes the softest words carry the most meaning. I'm grateful we can speak so openly here."
+        "That quiet moment we shared at the lake house last summer, watching the sunrise over the water... those peaceful memories mean so much to me.",
+        "I was thinking about how kind you were to my mom when she was recovering from her surgery last fall. Your gentle nature really shines through in difficult times.",
+        "Remember the way you handled that situation with little Emma at the family reunion? You have such a gift for connecting with children and making them feel safe.",
+        "That letter you wrote me after dad passed away was exactly what I needed to hear. Your thoughtful words helped me through the hardest weeks."
       ],
       confident: [
-        "I believe we're exactly where we need to be right now, having exactly the conversation we're meant to have.",
-        "You know, I've always found that the best discussions happen when people speak with genuine conviction.",
-        "I'm confident that each of us brings something unique and valuable to this conversation.",
-        "There's real power in authentic dialogue. We're creating something meaningful here together."
+        "That presentation I gave at the tech conference in Austin last year proved I can handle pressure - and this conversation feels just as energizing!",
+        "Remember when I decided to quit my corporate job and start freelancing in 2022? Best decision I ever made, and I knew it the moment I walked out.",
+        "I'm absolutely certain that our business plan for the food truck venture is going to work. The market research we did downtown shows huge demand.",
+        "That marathon I finished in Boston last spring taught me I can accomplish anything I set my mind to - including convincing you all that my movie recommendations are actually good!"
       ],
       playful: [
-        "Okay, okay, but can we talk about something fun? Like... what superpower would you choose and why?",
-        "You know what we need? More laughter in this conversation! Life's too short to be serious all the time!",
-        "I dare someone to share their most embarrassing moment. I'll go first if you want!",
-        "Let's play a game! Everyone has to share one totally random fact about themselves!"
+        "Remember that ridiculous karaoke night at Murphy's Pub when you sang 'Don't Stop Believing' for like the fifth time? The whole bar was singing along!",
+        "That water balloon fight we had at the Fourth of July barbecue last year was EPIC! I'm still finding grass stains on that shirt.",
+        "I just remembered the time we tried to recreate that TikTok dance at Jessica's wedding reception - we looked absolutely ridiculous but it was so much fun!",
+        "That game night when we played Monopoly until 3 AM and Mike flipped the board when he went bankrupt... good times! We should do that again soon."
       ],
       melancholic: [
-        "Sometimes I wonder if we're all just searching for connection in this vast, lonely universe.",
-        "There's a bittersweet beauty in conversations like this... fleeting moments of understanding.",
-        "I often think about how we're all carrying our own invisible burdens, yet we still find ways to reach out.",
-        "The sadness I feel isn't despair - it's more like a deep appreciation for the fragility of these moments."
+        "I keep thinking about that rainy afternoon we spent at the old cemetery where your grandmother is buried. The quiet beauty of remembering those we've lost...",
+        "That documentary about the closure of the steel mill in our hometown really got to me. So many families affected, so much history just... gone.",
+        "Sometimes I reread the letters my dad wrote me during his deployment in Afghanistan. There's something bittersweet about holding onto those words now that he's gone.",
+        "That last conversation I had with Professor Martinez before she retired... I wish I had told her how much her mentorship meant to me over those four years."
       ],
       authoritative: [
-        "Based on my experience, the most productive conversations follow a clear structure and purpose.",
-        "I believe it's important that we establish some ground rules for this discussion moving forward.",
-        "Let me share some insights I've gained over the years about effective communication and dialogue.",
-        "The key to meaningful conversation is maintaining focus and ensuring everyone contributes constructively."
+        "During my tenure as department head at Morrison Industries, I learned that effective meetings require clear agendas and measurable outcomes.",
+        "That leadership seminar I attended at Harvard Business School in 2020 taught me the importance of structured dialogue in achieving consensus.",
+        "Based on the project management certification I earned last year, I believe we need to establish clear objectives before proceeding with this discussion.",
+        "My experience leading the city council committee on urban planning showed me that productive conversations require both vision and practical implementation strategies."
       ]
     };
 
