@@ -153,7 +153,7 @@ export default function VoiceLab() {
               No virtual friends available for voice testing.
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-500">
-              Please create some virtual friends first to use the Voice Test Lab.
+              Please create some virtual friends first to use the Voice Manager.
             </p>
           </div>
         ) : (

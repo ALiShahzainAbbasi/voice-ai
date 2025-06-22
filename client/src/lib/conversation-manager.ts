@@ -190,37 +190,37 @@ export class ConversationManager {
   private getContextualResponses(personality: string, previousText: string): string[] {
     const lowerText = previousText.toLowerCase();
     
-    // Analyze the previous message and generate personality-appropriate responses
+    // Generate specific contextual responses based on the actual content
     const responses: Record<string, string[]> = {
       cheerful: [
-        "That's such a great point! I love how optimistic you are about it!",
-        "Oh wow, that really resonates with me! Thanks for sharing that perspective!",
-        "You always know how to make things sound so positive! I admire that about you.",
-        "That's amazing! I'm getting so inspired just listening to you talk about it!"
+        "That reminds me of when we went to that amazing concert at the amphitheater last summer! The energy was just like what you're describing.",
+        "Oh my gosh, yes! That's exactly how I felt when we discovered that hidden coffee shop on Maple Street. Life is full of these perfect little moments!",
+        "You know what? Your enthusiasm is contagious! It's making me think about that road trip we took to the coast - remember how excited we got about everything?",
+        "That's so true! It reminds me of something my grandmother used to say when we'd visit her farm in Iowa every summer."
       ],
       romantic: [
-        "The way you express yourself is just captivating... tell me more.",
-        "Your thoughts are like poetry to me. I could listen to you all day.",
-        "There's something so alluring about your perspective on this.",
-        "You have such a beautiful mind... I'm completely enchanted by your words."
+        "Your words just transported me back to that evening we spent watching the meteor shower from the rooftop. The way you see the world is so beautiful.",
+        "That's exactly how I felt during our first dance at my cousin's wedding in Savannah. You have this way of making everything feel magical.",
+        "The passion in your voice reminds me of when you told me about your dreams during that long walk through the botanical gardens last spring.",
+        "That sentiment is so beautiful... it's like that poem you shared with me from your literature class at university."
       ],
       sarcastic: [
-        "Oh, how absolutely enlightening. Please, do go on with your fascinating insights.",
-        "Well, that's certainly one way to look at it. How very... unique of you.",
-        "Right, because that makes perfect sense. Obviously.",
-        "Fascinating. And here I thought I'd heard everything today."
+        "Oh right, because that worked out so well the last time we tried something like that. Remember the great camping disaster of 2022?",
+        "Uh-huh, sure. And I suppose next you'll tell me that your 'brilliant' navigation skills from our trip to Seattle were actually helpful too?",
+        "That's rich, coming from someone who thought they could fix the garbage disposal with duct tape and 'positive thinking.'",
+        "Oh absolutely, because your track record with these kinds of ideas is just stellar. Like that time you convinced us to try that 'authentic' food truck."
       ],
       wise: [
-        "Your words carry deep wisdom. Let me reflect on what you've shared.",
-        "There are layers of truth in what you say. The wise person listens carefully.",
-        "You speak with the voice of experience. This reminds me of an old saying...",
-        "In your words, I hear echoes of ancient wisdom. How perceptive of you."
+        "That perspective reminds me of the philosophy course I took at State University with Professor Chen. She always said wisdom comes from reflection on experience.",
+        "Your insight echoes something I learned during my meditation retreat in Colorado. Sometimes the most profound truths are found in simple observations.",
+        "That's very perceptive. It brings to mind a conversation I had with my mentor, Dr. Williams, about the nature of human connection and understanding.",
+        "You've touched on something important there. It reminds me of a discussion we had at that book club meeting about 'Man's Search for Meaning.'"
       ],
       unhinged: [
-        "WHOA! That just blew my mind! Like, COMPLETELY reorganized my brain patterns!",
-        "DUDE! That's so wild! It's like reality just did a backflip!",
-        "OH MY GOSH! That's giving me SO many chaotic ideas right now!",
-        "YESSS! That energy is exactly what this conversation needed!"
+        "WAIT! That just reminded me of that absolutely chaotic New Year's Eve party at Danny's house where everything went sideways but somehow became legendary!",
+        "OH MY GOD YES! That's giving me the same energy as when we accidentally ended up at that underground karaoke competition in Chinatown!",
+        "DUDE! That's exactly the vibe from that time we got snowed in at the cabin and ended up creating that epic blanket fort civilization!",
+        "YESSS! That energy is just like when we spontaneously decided to drive to Vegas for Jessica's birthday and everything went beautifully wrong!"
       ]
     };
 
