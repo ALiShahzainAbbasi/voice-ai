@@ -48,7 +48,7 @@ export default function VoiceLab() {
         lastSpeaker: undefined
       });
     }
-  }, [friends]);
+  }, [friends.length]);
 
   // Load settings from localStorage
   useEffect(() => {

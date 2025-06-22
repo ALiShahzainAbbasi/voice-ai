@@ -583,8 +583,23 @@ export class ConversationManager {
   }
 
   private generateContextualConversationResponse(friend: Friend, lastMessage: ConversationMessage): string {
-    const responses = this.getContextualResponses(friend.personality, lastMessage.text);
-    return responses[Math.floor(Math.random() * responses.length)];
+    // Create direct responses based on what the previous speaker said
+    const lastText = lastMessage.text.toLowerCase();
+    
+    // Determine response type based on content
+    if (lastText.includes('remember') || lastText.includes('that time')) {
+      return this.generateMemoryResponse(friend, lastMessage);
+    } else if (lastText.includes('work') || lastText.includes('job') || lastText.includes('company')) {
+      return this.generateWorkResponse(friend, lastMessage);
+    } else if (lastText.includes('family') || lastText.includes('mom') || lastText.includes('dad')) {
+      return this.generateFamilyResponse(friend, lastMessage);
+    } else if (lastText.includes('travel') || lastText.includes('trip') || lastText.includes('vacation')) {
+      return this.generateTravelResponse(friend, lastMessage);
+    } else if (lastText.includes('school') || lastText.includes('college') || lastText.includes('university')) {
+      return this.generateEducationResponse(friend, lastMessage);
+    } else {
+      return this.generateGenericResponse(friend, lastMessage);
+    }
   }
 
   private generateConversationContent(friend: Friend): string {
@@ -720,6 +735,72 @@ export class ConversationManager {
     usedContent.add(selectedContent);
     
     return selectedContent;
+  }
+
+  private generateMemoryResponse(friend: Friend, lastMessage: ConversationMessage): string {
+    const memoryResponses = [
+      "Oh wow, that brings back so many memories! I was just thinking about that same weekend we spent at the cabin in Colorado.",
+      "Yes! And remember how we got completely lost trying to find that hidden waterfall? We ended up discovering that amazing little diner instead.",
+      "That reminds me of when we tried to recreate that recipe from the cooking class we took together - what a disaster that was!",
+      "I still have the photos from that trip on my phone. The sunset we watched from the lighthouse was absolutely incredible.",
+      "Exactly! And wasn't that the same weekend when Mike decided to try surfing for the first time and wiped out spectacularly?"
+    ];
+    return memoryResponses[Math.floor(Math.random() * memoryResponses.length)];
+  }
+
+  private generateWorkResponse(friend: Friend, lastMessage: ConversationMessage): string {
+    const workResponses = [
+      "Speaking of work, my boss just announced we're switching to a four-day work week starting next month. I'm so excited!",
+      "That reminds me of the time our entire department had to work overtime during the Johnson project deadline. We practically lived at the office for two weeks.",
+      "I know exactly what you mean. The new manager they hired at my company has completely changed our team dynamics - and surprisingly, for the better!",
+      "Work has been crazy lately too. We're launching a new product line in March and the whole marketing team is scrambling to get everything ready.",
+      "That's so similar to what happened at my old job at TechStart. The company culture there was toxic, which is why I switched to freelancing."
+    ];
+    return workResponses[Math.floor(Math.random() * workResponses.length)];
+  }
+
+  private generateFamilyResponse(friend: Friend, lastMessage: ConversationMessage): string {
+    const familyResponses = [
+      "Family dynamics are so complex, aren't they? My sister just announced she's moving to Portland with her boyfriend, and my parents are not taking it well.",
+      "That sounds just like my dad! He's always been the type to give unsolicited advice, especially about career choices. But deep down, he just wants what's best for us.",
+      "My mom went through something similar when my grandmother was in the hospital last year. It really brought our whole family closer together.",
+      "I totally understand. Family gatherings at my house are always a mix of laughter and chaos, especially when my three nephews are running around.",
+      "That reminds me of the family reunion we had at Uncle Tom's farm last summer. Seeing all the cousins together for the first time in years was amazing."
+    ];
+    return familyResponses[Math.floor(Math.random() * familyResponses.length)];
+  }
+
+  private generateTravelResponse(friend: Friend, lastMessage: ConversationMessage): string {
+    const travelResponses = [
+      "Travel stories are the best! I just booked a trip to Iceland for this fall - I've been dreaming about seeing the Northern Lights for years.",
+      "That sounds amazing! My most memorable trip was definitely backpacking through Southeast Asia. Three weeks, six countries, and countless unforgettable experiences.",
+      "I love hearing about travel adventures. The spontaneous road trip I took to the Grand Canyon last spring changed my whole perspective on solo travel.",
+      "That reminds me of when I got stranded in Paris for an extra three days because of a flight cancellation. It turned out to be the best part of my entire European vacation!",
+      "Travel can be so unpredictable but that's what makes it exciting. The train journey I took through the Swiss Alps was absolutely breathtaking - every turn revealed a new stunning view."
+    ];
+    return travelResponses[Math.floor(Math.random() * travelResponses.length)];
+  }
+
+  private generateEducationResponse(friend: Friend, lastMessage: ConversationMessage): string {
+    const educationResponses = [
+      "School memories! That takes me back to my college days at State University. Professor Williams's philosophy class completely changed how I think about ethics.",
+      "I know what you mean about education. Going back to get my master's degree while working full-time was challenging, but so worth it in the end.",
+      "That reminds me of the study abroad program I did in Barcelona during my junior year. Living with a host family taught me more Spanish than four years of classes combined.",
+      "Education is so important. I'm actually thinking about taking some online courses in data science to transition into a more tech-focused career.",
+      "The best teacher I ever had was Mrs. Rodriguez in high school. She made calculus actually enjoyable and inspired me to pursue engineering."
+    ];
+    return educationResponses[Math.floor(Math.random() * educationResponses.length)];
+  }
+
+  private generateGenericResponse(friend: Friend, lastMessage: ConversationMessage): string {
+    const genericResponses = [
+      "That's such an interesting perspective! It reminds me of the conversation we had at Sarah's birthday party about how our experiences shape our worldview.",
+      "I completely agree with what you're saying. It's fascinating how different people can have such unique takes on the same situation.",
+      "You're absolutely right about that. I've been thinking a lot lately about how important it is to really listen to each other and understand different viewpoints.",
+      "That's a great point! It makes me think about the book club discussion we had last month about human connections and how they evolve over time.",
+      "I love how our conversations always take these unexpected turns. We started talking about one thing and now we're exploring something completely different but equally meaningful."
+    ];
+    return genericResponses[Math.floor(Math.random() * genericResponses.length)];
   }
 
   public getState(): ConversationState {

@@ -31,7 +31,7 @@ export function ConversationDisplay({
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
-  }, [conversationState.messages]);
+  }, [conversationState.messages.length]);
 
   const getFriendById = (friendId?: number): Friend | undefined => {
     return conversationState.participants.find(f => f.id === friendId);
@@ -163,8 +163,8 @@ export function ConversationDisplay({
           </div>
         </div>
 
-        <ScrollArea className="h-96 w-full pr-4" ref={scrollAreaRef}>
-          <div className="space-y-4">
+        <ScrollArea className="h-96 w-full pr-4">
+          <div className="space-y-4" ref={scrollAreaRef}>
             {conversationState.messages.map((message) => (
               <div
                 key={message.id}
