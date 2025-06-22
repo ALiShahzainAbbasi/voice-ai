@@ -608,44 +608,47 @@ export class ConversationManager {
 
     const conversationTopics = {
       cheerful: [
-        "You know what? I had the most amazing day today! The weather was perfect and I just felt so grateful for everything.",
-        "I've been thinking about how wonderful it is that we can all connect like this. Technology is incredible!",
-        "Has anyone tried that new coffee place downtown? I heard they have the most delicious pastries!",
-        "I just wanted to say how much I appreciate all of you. This conversation is making my day so much brighter!",
-        "There's something magical about positive energy - it's so contagious! I love being around uplifting people.",
-        "I've been practicing gratitude lately and it's amazing how it changes your whole perspective on life.",
-        "The sunset yesterday was absolutely breathtaking! Sometimes nature just reminds you how beautiful the world is.",
-        "I met the kindest stranger today who helped me when I dropped my groceries. Faith in humanity restored!",
-        "Did you know that smiling actually releases endorphins? That's probably why I'm always so happy!",
-        "I love how every day brings new opportunities to make someone's day a little brighter.",
-        "There's this amazing hiking trail I discovered last week - the views were absolutely stunning!",
-        "I've been reading this book about mindfulness and it's completely changed how I see the world."
+        "Remember that time we went to Sarah's birthday party last March? I still can't believe she had that karaoke machine in her backyard!",
+        "I just got back from that new farmers market on 5th Street. They have the most incredible honey I've ever tasted - reminded me of that trip we took to Vermont in 2019.",
+        "Did you see the email about our college reunion next summer? It's hard to believe it's been 8 years since we graduated from State University.",
+        "I ran into Mike from our old marketing team yesterday at Starbucks. He's doing freelance work now and seems really happy about it.",
+        "That concert we went to at Red Rocks last August was absolutely incredible. I still get goosebumps thinking about when they played our favorite song during the encore.",
+        "My sister just got engaged to that guy Tom we met at the barbecue in July. They're planning a destination wedding in Costa Rica next spring!",
+        "I finally finished reading that book you recommended - 'Atomic Habits' by James Clear. You were right, it really did change how I think about productivity.",
+        "The weather reminds me of that perfect day we spent at the beach house in Outer Banks. Remember when we found those sand dollars and built that epic sandcastle?",
+        "I just booked my flight for Christmas - can't wait to see everyone at Mom's house. Are you still planning to drive down from Chicago?",
+        "That new Thai restaurant on Elm Street is amazing! The pad thai tastes just like the one we had in Bangkok during our backpacking trip.",
+        "I saw our old professor Dr. Martinez at the grocery store. She's retiring next semester after 30 years of teaching psychology at the university.",
+        "Remember when we used to stay up until 3 AM playing board games in college? I found our old Settlers of Catan set in the closet yesterday."
       ],
       romantic: [
-        "There's something magical about deep conversations like this... it really brings people together.",
-        "I love how we can share our thoughts so openly. It feels so intimate and special.",
-        "The way you all express yourselves is just beautiful. Your words touch my heart.",
-        "Moments like these remind me why human connection is so precious and meaningful.",
-        "Your voices are like music to my ears... each one unique and enchanting.",
-        "I find myself getting lost in the poetry of your words. How beautifully you all speak.",
-        "There's an intimacy in sharing thoughts that goes beyond physical presence, don't you think?",
-        "Sometimes the most romantic thing is simply being heard and understood completely."
+        "That dinner we had at Giovanni's last Valentine's Day was perfect. The way the candlelight reflected in your eyes during dessert... I'll never forget that moment.",
+        "I still have the ticket stub from our first movie date - we saw 'The Notebook' at the old Palace Theater downtown. You cried during the ending and I knew I was falling for you.",
+        "Remember our weekend getaway to that bed and breakfast in Napa Valley? Walking through the vineyards at sunset, your hand in mine... pure magic.",
+        "I found that love letter you wrote me for our anniversary last year. Reading it again still gives me butterflies, especially the part about our future together.",
+        "That slow dance we shared at Emma's wedding to 'At Last' by Etta James... I could have stayed in your arms forever on that dance floor.",
+        "The way you looked at me when I surprised you with those roses at your office last month - your colleagues still talk about how romantic it was.",
+        "Our first kiss under the cherry blossoms in Central Park during spring break... every time I see those flowers bloom, I think of that perfect April afternoon.",
+        "I love how we always find each other's hands during movies, even in the dark. It's like our hearts just naturally seek that connection."
       ],
       unhinged: [
-        "Okay but hear me out - what if we're all just characters in someone else's dream right now?!",
-        "I just had this WILD idea! What if we started a flash mob but everyone has to wear banana costumes?",
-        "Does anyone else ever just want to run through a field screaming about the absurdity of existence?",
-        "PLOT TWIST: What if gravity is just really committed to its job and we're all actually floating?!"
+        "Remember when we tried to build that treehouse behind Jake's place in 2018? I still can't believe we thought duct tape would hold a whole platform together!",
+        "I just realized - we've been friends for 6 years and I JUST found out you put pineapple on pizza! How did this never come up during our weekly Friday night dinners?",
+        "That time we got lost driving to Dave's wedding in Portland and ended up at that weird roadside attraction with the giant rubber duck... best wrong turn EVER!",
+        "I still have nightmares about that camping trip where you convinced us to eat those 'totally safe' mushrooms you found. We spent three hours convinced the trees were speaking French!",
+        "Remember our failed business idea from college - selling custom fortune cookies with inside jokes? We made exactly $12 and ate about $200 worth of cookies ourselves.",
+        "That epic game night at my apartment last winter when the power went out and we played charades by candlelight until 4 AM... chaos but magical chaos!",
+        "I just found our old group chat from that disastrous ski trip to Aspen. 847 messages in one day, mostly about how none of us could actually ski!"
       ],
       sarcastic: [
-        "Oh wonderful, another deep philosophical discussion. Because that's exactly what I needed today.",
-        "Well, isn't this just delightful. Here I am, sharing my innermost thoughts with complete strangers.",
-        "Sure, let's all just open up and share our feelings. What could possibly go wrong?",
-        "I'm just thrilled to be here discussing the meaning of life with you fine people.",
-        "How refreshing, everyone's being so genuine and authentic. My heart is practically bursting with joy.",
-        "Oh good, we're having one of those conversations where everyone pretends to be deep and meaningful.",
-        "Nothing says 'good time' like a group therapy session disguised as casual chat.",
-        "I love how we're all trying so hard to sound intellectual. It's absolutely adorable."
+        "Oh great, another story about your 'life-changing' experience at that meditation retreat in Sedona. Because the first five times weren't enough.",
+        "Let me guess - you're about to tell us how that overpriced smoothie from Whole Foods 'transformed your relationship with nutrition'?",
+        "Wow, Kevin got promoted again? What a surprise. I'm sure his connections to the CEO's golf buddy had nothing to do with it.",
+        "That inspirational quote you posted on Instagram yesterday really changed my life. Said no one ever, except apparently your 47 likes.",
+        "Remember when we all pretended to enjoy Rachel's vegan potluck last month? Good times. My taste buds are still recovering.",
+        "Oh, you discovered a new coffee shop and it's 'totally going to be your new regular spot'? Just like the other twelve you've said that about.",
+        "Let me just mark my calendar for your next 'spontaneous' adventure that you've been planning for three weeks.",
+        "That time you insisted we take the 'scenic route' to the beach and we got lost for two hours? Peak navigation skills right there."
       ],
       wise: [
         "In my experience, the most profound conversations often happen when we least expect them.",

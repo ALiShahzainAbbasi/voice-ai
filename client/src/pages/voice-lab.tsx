@@ -140,7 +140,7 @@ export default function VoiceLab() {
         {/* Header */}
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-            Voice Test Lab
+            Voice Manager
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400">
             Test voices, generate conversations, and explore AI dialogue

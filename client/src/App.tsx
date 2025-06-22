@@ -37,7 +37,7 @@ function Navigation() {
                 className="flex items-center gap-2"
               >
                 <Mic className="w-4 h-4" />
-                Voice Test Lab
+                Voice Manager
               </Button>
             </Link>
           </div>

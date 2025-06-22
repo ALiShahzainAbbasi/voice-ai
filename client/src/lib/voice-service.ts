@@ -31,10 +31,10 @@ export async function generateVoice(
 
     const data = await response.json();
     
-    if (data.audio) {
-      const audio = new Audio(`data:audio/mpeg;base64,${data.audio}`);
+    if (data.audioUrl) {
+      const audio = new Audio(data.audioUrl);
       audio.playbackRate = playbackSpeed;
-      audio.volume = masterVolume;
+      audio.volume = masterVolume / 100; // Convert percentage to decimal
       
       return new Promise((resolve, reject) => {
         audio.onended = () => resolve();

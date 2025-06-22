@@ -43,29 +43,17 @@ export function SpeechInput({ onTextSubmit, isProcessing = false }: SpeechInputP
       
       recognition.onresult = (event: any) => {
         let finalTranscript = '';
-        let interimTranscript = '';
         
         for (let i = event.resultIndex; i < event.results.length; i++) {
           const transcript = event.results[i][0].transcript;
           if (event.results[i].isFinal) {
             finalTranscript += transcript;
-          } else {
-            interimTranscript += transcript;
           }
         }
         
         // Only update with final transcript to avoid duplication
-        if (finalTranscript) {
-          setTranscript(prev => prev + finalTranscript);
-        }
-        // For interim results, replace the whole transcript temporarily
-        if (interimTranscript && !finalTranscript) {
-          setTranscript(prev => {
-            // Remove any previous interim results and add new ones
-            const lastFinalIndex = prev.lastIndexOf('.');
-            const baseTxt = lastFinalIndex >= 0 ? prev.substring(0, lastFinalIndex + 1) : prev;
-            return baseTxt + interimTranscript;
-          });
+        if (finalTranscript.trim()) {
+          setTranscript(finalTranscript.trim());
         }
       };
       
