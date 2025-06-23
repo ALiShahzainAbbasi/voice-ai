@@ -1,8 +1,12 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { History, MessageSquare } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Friend } from "@shared/schema";
 import { ConversationDisplay } from "@/components/conversation-display";
 import { ConversationIntegration } from "@/components/conversation-integration";
+import { ConversationContextManager, type ConversationContext } from "@/components/conversation-context";
 import { TextInputSection } from "@/components/text-input-section";
 import { VoiceControlPanel } from "@/components/voice-control-panel";
 import { SpeechInput } from "@/components/speech-input";
@@ -22,6 +26,7 @@ export default function VoiceLab() {
     participants: [],
     lastSpeaker: undefined
   });
+  const [conversationContexts, setConversationContexts] = useState<ConversationContext[]>([]);
 
   const { data: friends = [], isLoading } = useQuery<Friend[]>({
     queryKey: ['/api/friends'],
@@ -109,6 +114,27 @@ export default function VoiceLab() {
     await conversationManager.startConversation();
   };
 
+  const handleContextApplied = (contextString: string) => {
+    if (conversationManager) {
+      conversationManager.setHistoricalContext(contextString);
+      console.log("Applied historical context to conversation manager");
+    }
+  };
+
+  const handleContextsChange = (contexts: ConversationContext[]) => {
+    setConversationContexts(contexts);
+    // Auto-apply context when changed
+    if (contexts.length > 0) {
+      const contextString = contexts.map(context => {
+        return `${context.type.toUpperCase()}: ${context.title}\n${context.content}${context.source ? `\nSource: ${context.source}` : ''}`;
+      }).join('\n\n---\n\n');
+      
+      if (conversationManager) {
+        conversationManager.setHistoricalContext(contextString);
+      }
+    }
+  };
+
   const handleStartConversation = async () => {
     if (!conversationManager) return;
     
@@ -186,72 +212,111 @@ export default function VoiceLab() {
             </p>
           </div>
         ) : (
-          <div className="grid gap-8">
-            {/* Live Conversation - Moved to top */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+          <Tabs defaultValue="conversation" className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="conversation">
+                <MessageSquare className="w-4 h-4 mr-2" />
                 Live Conversation
-              </h2>
-              <ConversationDisplay
-                conversationState={conversationState}
-                onPlayMessage={handlePlayMessage}
-                onStartConversation={handleStartConversation}
-                onStopConversation={handleStopConversation}
-                isLoading={false}
-              />
-            </div>
+              </TabsTrigger>
+              <TabsTrigger value="context">
+                <History className="w-4 h-4 mr-2" />
+                Historical Context
+              </TabsTrigger>
+              <TabsTrigger value="voice-test">Voice Testing</TabsTrigger>
+            </TabsList>
 
-            {/* Speech Input */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
-                Voice Input
-              </h2>
-              <p className="text-gray-600 dark:text-gray-400 mb-4">
-                Speak to automatically start a conversation with your virtual friends
-              </p>
-              <SpeechInput 
-                onTextSubmit={handleSpeechInput}
-                isProcessing={conversationState.isActive}
-              />
-            </div>
+            <TabsContent value="conversation" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Live Conversation</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ConversationDisplay
+                    conversationState={conversationState}
+                    onPlayMessage={handlePlayMessage}
+                    onStartConversation={handleStartConversation}
+                    onStopConversation={handleStopConversation}
+                    isLoading={false}
+                  />
+                </CardContent>
+              </Card>
 
-            {/* Text Input Section */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
-                Text Voice Testing
-              </h2>
-              <TextInputSection
-                textInput={textInput}
-                onTextChange={setTextInput}
-                onTestAll={handleTestAll}
-                isTestingAll={isTestingAll}
-              />
-            </div>
+              {/* Speech Input */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Voice Input</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600 dark:text-gray-400 mb-4">
+                    Speak to automatically start a conversation with your virtual friends
+                  </p>
+                  <SpeechInput 
+                    onTextSubmit={handleSpeechInput}
+                    isProcessing={conversationState.isActive}
+                  />
+                </CardContent>
+              </Card>
 
-            {/* Conversation Templates */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
-                Conversation Templates
-              </h2>
-              <ConversationIntegration 
-                onTextGenerated={handleTextGenerated}
-                onTemplateSelected={handleTemplateSelected}
-              />
-            </div>
+              {/* Conversation Templates */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Conversation Templates</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ConversationIntegration 
+                    onTextGenerated={handleTextGenerated}
+                    onTemplateSelected={handleTemplateSelected}
+                  />
+                </CardContent>
+              </Card>
+            </TabsContent>
 
-            {/* Voice Control Panel - Moved to bottom */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
-                Voice Controls
-              </h2>
-              <VoiceControlPanel
-                playbackSpeed={playbackSpeed}
-                onPlaybackSpeedChange={setPlaybackSpeed}
-                masterVolume={masterVolume}
-                onMasterVolumeChange={setMasterVolume}
-              />
-            </div>
-          </div>
+            <TabsContent value="context" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Historical Context</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ConversationContextManager
+                    contexts={conversationContexts}
+                    onContextsChange={handleContextsChange}
+                    onContextApplied={handleContextApplied}
+                  />
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="voice-test" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Text Voice Testing</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <TextInputSection
+                    textInput={textInput}
+                    onTextChange={setTextInput}
+                    onTestAll={handleTestAll}
+                    isTestingAll={isTestingAll}
+                  />
+                </CardContent>
+              </Card>
+
+              {/* Voice Control Panel */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Voice Controls</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <VoiceControlPanel
+                    playbackSpeed={playbackSpeed}
+                    onPlaybackSpeedChange={setPlaybackSpeed}
+                    masterVolume={masterVolume}
+                    onMasterVolumeChange={setMasterVolume}
+                  />
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
         )}
       </div>
     </div>
