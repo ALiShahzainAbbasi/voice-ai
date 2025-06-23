@@ -143,6 +143,8 @@ This is a full-stack React application built for testing voice synthesis with di
 - June 23, 2025: Connected conversation templates to automatically start themed autonomous chats
 - June 23, 2025: Added template-specific host messages and enhanced AI prompts for better theme adherence
 - June 23, 2025: Updated conversation templates interface to auto-start conversations when templates are selected
+- June 23, 2025: Created new "Voice Only" tab with streamlined voice-first interface for virtual friend conversations
+- June 23, 2025: Added dedicated voice-only page with primary voice input and alternative text input options
 
 ## User Preferences
 

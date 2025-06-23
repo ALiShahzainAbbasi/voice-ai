@@ -1,5 +1,5 @@
 import { Switch, Route, Link, useLocation } from "wouter";
-import { Users, Mic } from "lucide-react";
+import { Users, Mic, Volume2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Home from "@/pages/home";
 import VoiceLab from "@/pages/voice-lab";
+import VoiceOnly from "@/pages/voice-only";
 import NotFound from "@/pages/not-found";
 
 function Navigation() {
@@ -40,6 +41,16 @@ function Navigation() {
                 Voice Manager
               </Button>
             </Link>
+            
+            <Link href="/voice-only">
+              <Button 
+                variant={location === "/voice-only" ? "default" : "outline"}
+                className="flex items-center gap-2"
+              >
+                <Volume2 className="w-4 h-4" />
+                Voice Only
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
@@ -54,6 +65,7 @@ function Router() {
       <Switch>
         <Route path="/" component={Home} />
         <Route path="/voice-lab" component={VoiceLab} />
+        <Route path="/voice-only" component={VoiceOnly} />
         <Route component={NotFound} />
       </Switch>
     </div>
