@@ -49,9 +49,10 @@ const conversationTemplates: ConversationTemplate[] = [
 
 interface ConversationIntegrationProps {
   onTextGenerated: (text: string) => void;
+  onTemplateSelected?: (templateScenario: string) => void;
 }
 
-export function ConversationIntegration({ onTextGenerated }: ConversationIntegrationProps) {
+export function ConversationIntegration({ onTextGenerated, onTemplateSelected }: ConversationIntegrationProps) {
   const [selectedTemplate, setSelectedTemplate] = useState<ConversationTemplate | null>(null);
   const [customScenario, setCustomScenario] = useState("");
   const [generatedText, setGeneratedText] = useState("");
@@ -61,6 +62,11 @@ export function ConversationIntegration({ onTextGenerated }: ConversationIntegra
   const handleTemplateSelect = (template: ConversationTemplate) => {
     setSelectedTemplate(template);
     setGeneratedText(template.suggestedText);
+    
+    // Notify parent component about template selection for autonomous chat
+    if (onTemplateSelected) {
+      onTemplateSelected(template.scenario);
+    }
   };
 
   const generateCustomText = () => {
@@ -123,6 +129,21 @@ export function ConversationIntegration({ onTextGenerated }: ConversationIntegra
           <Label className="text-sm font-medium text-gray-700 mb-2 block">
             Choose a Conversation Template
           </Label>
+          <p className="text-xs text-gray-600 mb-3">
+            Templates influence autonomous chat topics and generate conversation starters
+          </p>
+          
+          {selectedTemplate && (
+            <div className="mb-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+              <p className="text-sm text-blue-800 dark:text-blue-200">
+                <span className="font-medium">Active scenario:</span> {selectedTemplate.scenario}
+              </p>
+              <p className="text-xs text-blue-600 dark:text-blue-300 mt-1">
+                Virtual friends will discuss topics related to this scenario
+              </p>
+            </div>
+          )}
+          
           <div className="grid grid-cols-1 gap-2">
             {conversationTemplates.map((template) => (
               <Button

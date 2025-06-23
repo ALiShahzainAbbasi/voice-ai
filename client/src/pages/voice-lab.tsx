@@ -92,6 +92,13 @@ export default function VoiceLab() {
     setTextInput(text);
   };
 
+  const handleTemplateSelected = (templateScenario: string) => {
+    if (conversationManager) {
+      conversationManager.setConversationContext(templateScenario);
+      console.log("Template scenario set for autonomous chat:", templateScenario);
+    }
+  };
+
   const handleStartConversation = async () => {
     if (!conversationManager) return;
     
@@ -216,7 +223,10 @@ export default function VoiceLab() {
               <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
                 Conversation Templates
               </h2>
-              <ConversationIntegration onTextGenerated={handleTextGenerated} />
+              <ConversationIntegration 
+                onTextGenerated={handleTextGenerated}
+                onTemplateSelected={handleTemplateSelected}
+              />
             </div>
 
             {/* Voice Control Panel - Moved to bottom */}
