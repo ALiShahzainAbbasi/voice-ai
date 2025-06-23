@@ -61,6 +61,11 @@ export function SpeechInput({ onTextSubmit, isProcessing = false }: SpeechInputP
         console.error('Speech recognition error:', event.error);
         setIsListening(false);
         
+        // Don't show error toast for "aborted" errors (happens when user stops manually)
+        if (event.error === 'aborted') {
+          return;
+        }
+        
         let errorMessage = 'Speech recognition failed';
         if (event.error === 'not-allowed') {
           errorMessage = 'Microphone access denied. Please allow microphone permissions.';
@@ -107,12 +112,22 @@ export function SpeechInput({ onTextSubmit, isProcessing = false }: SpeechInputP
   const stopListening = () => {
     if (recognitionRef.current && isListening) {
       recognitionRef.current.stop();
+      
+      // Auto-submit when user manually stops speaking
+      setTimeout(() => {
+        handleSubmit();
+      }, 500); // Small delay to ensure transcript is captured
     }
   };
 
   const handleSubmit = () => {
-    if (transcript.trim()) {
-      onTextSubmit(transcript.trim());
+    const text = transcript.trim();
+    if (text) {
+      onTextSubmit(text);
+      setTranscript("");
+    } else {
+      // If no transcript but user wants to start conversation, use a default message
+      onTextSubmit("Let's start chatting!");
       setTranscript("");
     }
   };
@@ -169,7 +184,7 @@ export function SpeechInput({ onTextSubmit, isProcessing = false }: SpeechInputP
                 {isListening ? (
                   <>
                     <MicOff className="w-4 h-4 mr-2" />
-                    Stop Speaking
+                    Stop & Start Chat
                   </>
                 ) : (
                   <>
