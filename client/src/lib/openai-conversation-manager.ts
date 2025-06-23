@@ -30,17 +30,21 @@ export class OpenAIConversationManager {
     this.state = {
       messages: [],
       isActive: false,
-      participants: friends,
+      participants: [...friends],
       lastSpeaker: undefined
     };
     
     this.onStateChange = onStateChange;
     
     console.log("OpenAI conversation manager initialized with", friends.length, "friends");
+    
+    // Immediately notify state change to ensure UI updates
+    this.notifyStateChange();
   }
 
   public updateParticipants(friends: Friend[]) {
-    this.state.participants = friends;
+    this.state.participants = [...friends];
+    console.log("Updated participants in OpenAI conversation manager:", friends.length);
     this.notifyStateChange();
   }
 

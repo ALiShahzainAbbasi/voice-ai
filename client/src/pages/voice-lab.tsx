@@ -29,17 +29,25 @@ export default function VoiceLab() {
 
   // Initialize conversation manager when friends data changes
   useEffect(() => {
+    console.log("VoiceLab useEffect - Friends data:", friends.length, "friends");
+    
     if (friends.length > 0) {
-      console.log("Friends data changed:", friends.length);
+      // Always create a new manager to ensure clean state
       if (conversationManager) {
-        conversationManager.updateParticipants(friends);
-      } else {
-        const manager = new OpenAIConversationManager(friends, setConversationState);
-        setConversationManager(manager);
-        console.log("OpenAI conversation manager initialized with", friends.length, "friends");
+        conversationManager.stopConversation();
       }
+      
+      console.log("Creating fresh OpenAI conversation manager with friends:", friends.map(f => f.name));
+      const manager = new OpenAIConversationManager(friends, (newState) => {
+        console.log("Conversation state updated - participants:", newState.participants.length);
+        setConversationState(newState);
+      });
+      setConversationManager(manager);
     } else {
-      console.log("Conversation manager cleared - no friends");
+      console.log("No friends available - clearing conversation manager");
+      if (conversationManager) {
+        conversationManager.stopConversation();
+      }
       setConversationManager(null);
       setConversationState({
         messages: [],
@@ -48,7 +56,7 @@ export default function VoiceLab() {
         lastSpeaker: undefined
       });
     }
-  }, [friends.length]);
+  }, [friends.length, friends]);
 
   // Load settings from localStorage
   useEffect(() => {
