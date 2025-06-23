@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertFriendSchema, updateFriendSchema } from "@shared/schema";
 import { z } from "zod";
+import OpenAI from "openai";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Get all friends
@@ -250,6 +251,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Failed to generate voice sample:", error);
       res.status(500).json({ error: "Failed to generate voice sample" });
+    }
+  });
+
+  // OpenAI conversation generation
+  app.post("/api/generate-conversation", async (req, res) => {
+    try {
+      const { prompt, personality, contextHistory } = req.body;
+
+      if (!prompt) {
+        return res.status(400).json({ error: "Prompt is required" });
+      }
+
+      const apiKey = process.env.OPENAI_API_KEY;
+      if (!apiKey) {
+        return res.status(500).json({ error: "OpenAI API key not configured" });
+      }
+
+      const openai = new OpenAI({ apiKey });
+
+      const personalityDescriptions = {
+        cheerful: "You're always optimistic and energetic. You love sharing positive experiences from your life like weekend adventures, fun events you attended, and exciting plans you have coming up.",
+        romantic: "You're deeply emotional and value meaningful connections. You often reference romantic movies you've seen, beautiful places you've visited with loved ones, and heartfelt moments you've experienced.",
+        unhinged: "You're spontaneous and unpredictable. You tell wild stories about crazy things you've done, unexpected adventures you've had, and impulsive decisions you've made.",
+        sarcastic: "You're witty and often use humor to make your point. You reference funny situations you've witnessed, ironic events that happened to you, and amusing observations about life.",
+        wise: "You're thoughtful and philosophical. You often reference books you've read, life lessons you've learned from specific experiences, and insights gained from your past.",
+        gentle: "You're caring and compassionate. You talk about times you've helped others, peaceful moments you've enjoyed, and ways you've supported friends and family.",
+        mysterious: "You're enigmatic and intriguing. You hint at unusual experiences you've had, strange coincidences in your life, and unexplained events you've witnessed.",
+        aggressive: "You're direct and assertive. You reference times you've stood up for yourself or others, challenges you've overcome, and strong opinions about specific situations.",
+        confident: "You're self-assured and ambitious. You talk about goals you've achieved, challenges you've conquered, and successes you've had in specific endeavors.",
+        playful: "You're fun-loving and mischievous. You reference games you've played, pranks you've pulled, silly situations you've been in, and lighthearted moments you've shared.",
+        melancholic: "You're contemplative and sometimes sad. You reflect on bittersweet memories, losses you've experienced, and poignant moments that have shaped you.",
+        authoritative: "You're knowledgeable and take charge. You reference your expertise in specific areas, leadership experiences you've had, and situations where you've guided others."
+      };
+
+      const personalityPrompt = personalityDescriptions[personality as keyof typeof personalityDescriptions] || personalityDescriptions.cheerful;
+
+      const systemPrompt = `You are a ${personality} person in a casual conversation with friends. ${personalityPrompt}
+
+CRITICAL RULES:
+1. Always respond with specific details like dates, places, names, and shared experiences
+2. Reference concrete memories and real-life scenarios
+3. Never use generic platitudes or vague statements
+4. Keep responses conversational and authentic (2-3 sentences max)
+5. Build on what the previous speaker said with specific examples
+6. Mention actual locations, people's names, specific dates/times
+
+${contextHistory ? `Recent conversation context:\n${contextHistory}` : ''}
+
+Respond authentically with specific details and concrete examples.`;
+
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: prompt }
+        ],
+        max_tokens: 150,
+        temperature: 0.8,
+      });
+
+      const generatedText = response.choices[0].message.content?.trim() || "That's really interesting. I'd love to hear more about that.";
+      
+      res.json({ text: generatedText });
+    } catch (error) {
+      console.error("Failed to generate conversation:", error);
+      res.status(500).json({ error: "Failed to generate conversation" });
     }
   });
 

@@ -1,4 +1,3 @@
-import OpenAI from "openai";
 import type { Friend } from "@shared/schema";
 
 export interface ConversationMessage {
@@ -21,7 +20,6 @@ export interface ConversationState {
 export class OpenAIConversationManager {
   private state: ConversationState;
   private onStateChange: (state: ConversationState) => void;
-  private openai: OpenAI;
   private conversationTimer: NodeJS.Timeout | null = null;
   private isAutoConversationActive: boolean = false;
   private conversationHistory: string[] = [];
@@ -37,13 +35,6 @@ export class OpenAIConversationManager {
     };
     
     this.onStateChange = onStateChange;
-    
-    // Initialize OpenAI - we'll make API calls through our backend to keep the key secure
-    this.openai = new OpenAI({ 
-      apiKey: "placeholder", // API calls will go through our backend
-      baseURL: "/api/openai", // Route to our backend OpenAI proxy
-      dangerouslyAllowBrowser: true 
-    });
     
     console.log("OpenAI conversation manager initialized with", friends.length, "friends");
   }
@@ -140,61 +131,35 @@ export class OpenAIConversationManager {
   ): Promise<string> {
     const conversationContext = this.conversationHistory.slice(-10).join('\n');
     
-    const personalityPrompt = this.buildPersonalityPrompt(friend);
-    
-    const systemPrompt = `You are ${friend.name}, a ${friend.personality} person. ${personalityPrompt}
-
-CRITICAL RULES:
-1. Always respond with specific details like dates, places, names, and shared experiences
-2. Reference concrete memories and real-life scenarios
-3. Never use generic platitudes or vague statements
-4. Keep responses conversational and authentic (2-3 sentences max)
-5. Build on what the previous speaker said with specific examples
-6. Mention actual locations, people's names, specific dates/times
-
-Current conversation context:
-${conversationContext}
-
-${lastSpeaker === 'user' ? 'The user just said' : `${lastSpeaker} just said`}: "${contextText}"
-
-Respond as ${friend.name} with specific details and concrete examples.`;
+    const prompt = `${lastSpeaker === 'user' ? 'The user just said' : `${lastSpeaker} just said`}: "${contextText}". Respond as ${friend.name} with specific details and concrete examples.`;
 
     try {
-      const response = await this.openai.chat.completions.create({
-        model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: contextText }
-        ],
-        max_tokens: 150,
-        temperature: 0.8,
+      const response = await fetch('/api/generate-conversation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt,
+          personality: friend.personality,
+          contextHistory: conversationContext
+        }),
       });
 
-      return response.choices[0].message.content?.trim() || "That's really interesting. Tell me more about that.";
+      if (response.ok) {
+        const data = await response.json();
+        return data.text || "That's really interesting. Tell me more about that.";
+      } else {
+        console.error('Conversation API error:', response.status);
+        return "That's fascinating! I'd love to hear more details about that experience.";
+      }
     } catch (error) {
-      console.error('OpenAI API error:', error);
+      console.error('Failed to generate conversation:', error);
       return "That's fascinating! I'd love to hear more details about that experience.";
     }
   }
 
-  private buildPersonalityPrompt(friend: Friend): string {
-    const personalityDescriptions = {
-      cheerful: "You're always optimistic and energetic. You love sharing positive experiences from your life like weekend adventures, fun events you attended, and exciting plans you have coming up.",
-      romantic: "You're deeply emotional and value meaningful connections. You often reference romantic movies you've seen, beautiful places you've visited with loved ones, and heartfelt moments you've experienced.",
-      unhinged: "You're spontaneous and unpredictable. You tell wild stories about crazy things you've done, unexpected adventures you've had, and impulsive decisions you've made.",
-      sarcastic: "You're witty and often use humor to make your point. You reference funny situations you've witnessed, ironic events that happened to you, and amusing observations about life.",
-      wise: "You're thoughtful and philosophical. You often reference books you've read, life lessons you've learned from specific experiences, and insights gained from your past.",
-      gentle: "You're caring and compassionate. You talk about times you've helped others, peaceful moments you've enjoyed, and ways you've supported friends and family.",
-      mysterious: "You're enigmatic and intriguing. You hint at unusual experiences you've had, strange coincidences in your life, and unexplained events you've witnessed.",
-      aggressive: "You're direct and assertive. You reference times you've stood up for yourself or others, challenges you've overcome, and strong opinions about specific situations.",
-      confident: "You're self-assured and ambitious. You talk about goals you've achieved, challenges you've conquered, and successes you've had in specific endeavors.",
-      playful: "You're fun-loving and mischievous. You reference games you've played, pranks you've pulled, silly situations you've been in, and lighthearted moments you've shared.",
-      melancholic: "You're contemplative and sometimes sad. You reflect on bittersweet memories, losses you've experienced, and poignant moments that have shaped you.",
-      authoritative: "You're knowledgeable and take charge. You reference your expertise in specific areas, leadership experiences you've had, and situations where you've guided others."
-    };
 
-    return personalityDescriptions[friend.personality as keyof typeof personalityDescriptions] || personalityDescriptions.cheerful;
-  }
 
   private async generateFriendVoice(message: ConversationMessage, friend: Friend): Promise<void> {
     try {
