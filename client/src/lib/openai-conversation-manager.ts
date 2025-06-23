@@ -315,18 +315,24 @@ ${conversationContext}
 Make a brief host comment that encourages the conversation and references specific shared experiences.`;
 
     try {
-      const response = await this.openai.chat.completions.create({
-        model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: "Generate a host comment" }
-        ],
-        max_tokens: 100,
-        temperature: 0.7,
+      const response = await fetch('/api/generate-conversation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: "Generate a brief host comment that encourages the conversation and references specific shared experiences.",
+          personality: "cheerful", // Host is always encouraging
+          contextHistory: conversationContext
+        }),
       });
 
-      const hostComment = response.choices[0].message.content?.trim() || 
-        "This conversation is bringing back so many great memories from our time together!";
+      let hostComment = "This conversation is bringing back so many great memories from our time together!";
+      
+      if (response.ok) {
+        const data = await response.json();
+        hostComment = data.text || hostComment;
+      }
 
       const hostMessage: ConversationMessage = {
         id: `host-auto-${Date.now()}`,
