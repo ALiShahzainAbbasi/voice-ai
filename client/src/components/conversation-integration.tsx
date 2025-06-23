@@ -130,7 +130,7 @@ export function ConversationIntegration({ onTextGenerated, onTemplateSelected }:
             Choose a Conversation Template
           </Label>
           <p className="text-xs text-gray-600 mb-3">
-            Templates influence autonomous chat topics and generate conversation starters
+            Selecting a template automatically starts autonomous chat with that theme
           </p>
           
           {selectedTemplate && (

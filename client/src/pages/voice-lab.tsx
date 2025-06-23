@@ -92,11 +92,21 @@ export default function VoiceLab() {
     setTextInput(text);
   };
 
-  const handleTemplateSelected = (templateScenario: string) => {
-    if (conversationManager) {
-      conversationManager.setConversationContext(templateScenario);
-      console.log("Template scenario set for autonomous chat:", templateScenario);
+  const handleTemplateSelected = async (templateScenario: string) => {
+    if (!conversationManager) return;
+    
+    // Stop any existing conversation
+    if (conversationState.isActive) {
+      conversationManager.stopConversation();
+      await new Promise(resolve => setTimeout(resolve, 500));
     }
+    
+    // Set the conversation context for the template theme
+    conversationManager.setConversationContext(templateScenario);
+    console.log("Template scenario set and starting autonomous chat:", templateScenario);
+    
+    // Automatically start autonomous conversation with the template theme
+    await conversationManager.startConversation();
   };
 
   const handleStartConversation = async () => {

@@ -59,9 +59,25 @@ export class OpenAIConversationManager {
     this.conversationHistory = [];
     
     const participantNames = this.state.participants.map(f => f.name).join(", ");
-    const hostMessage = `Hey everyone! Welcome to our voice chat. We have ${participantNames} here today. What's on your mind?`;
     
-    console.log("Adding host message:", hostMessage);
+    // Create theme-appropriate host message based on conversation context
+    let hostMessage = `Hey everyone! Welcome to our voice chat. We have ${participantNames} here today. What's on your mind?`;
+    
+    if (this.conversationContext) {
+      if (this.conversationContext.includes("comfort") || this.conversationContext.includes("support")) {
+        hostMessage = `Hi everyone. I know things can be tough sometimes, but we're all here for each other. ${participantNames}, let's share what's been on our hearts lately.`;
+      } else if (this.conversationContext.includes("professional") || this.conversationContext.includes("business")) {
+        hostMessage = `Good day, team. I'd like to welcome ${participantNames} to today's discussion. Let's dive into our agenda and share our thoughts professionally.`;
+      } else if (this.conversationContext.includes("story") || this.conversationContext.includes("narrating")) {
+        hostMessage = `Welcome, storytellers! ${participantNames}, I'm excited to hear the tales and experiences you have to share today.`;
+      } else if (this.conversationContext.includes("friendly") || this.conversationContext.includes("casual")) {
+        hostMessage = `Hey there, friends! ${participantNames}, it's so great to have you all here. Let's catch up and have some fun conversations!`;
+      } else {
+        hostMessage = `Hello everyone! ${participantNames}, let's explore this topic together: ${this.conversationContext}`;
+      }
+    }
+    
+    console.log("Adding theme-based host message:", hostMessage);
     
     const initialMessage: ConversationMessage = {
       id: `host-${Date.now()}`,
@@ -149,7 +165,11 @@ export class OpenAIConversationManager {
     
     // Add conversation template context if set
     if (this.conversationContext) {
-      prompt = `Conversation context: ${this.conversationContext}. ${prompt} Make sure your response fits the conversation scenario.`;
+      prompt = `CONVERSATION THEME: ${this.conversationContext}
+
+${prompt}
+
+CRITICAL: Your response as ${friend.name} must directly relate to and explore the conversation theme: "${this.conversationContext}". Share experiences, thoughts, or feelings that align with this theme while staying true to your personality.`;
     }
 
     try {
@@ -360,7 +380,11 @@ Make a brief host comment that encourages the conversation and references specif
 
     // Add conversation template context if set
     if (this.conversationContext) {
-      systemPrompt = `Conversation scenario: ${this.conversationContext}. ${systemPrompt} Make sure your host comment fits this conversation scenario and topic.`;
+      systemPrompt = `CONVERSATION THEME: ${this.conversationContext}
+
+${systemPrompt}
+
+IMPORTANT: Your host comments must relate to and support the conversation theme: "${this.conversationContext}". Encourage discussion around this theme while maintaining your encouraging, positive tone.`;
     }
 
     try {

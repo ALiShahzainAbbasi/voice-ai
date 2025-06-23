@@ -139,6 +139,10 @@ This is a full-stack React application built for testing voice synthesis with di
 - June 21, 2025: Improved contextual conversation responses based on previous messages
 - June 21, 2025: Made voice input automatically start autonomous conversations
 - June 21, 2025: Enhanced conversation variety with content tracking to prevent repetition
+- June 23, 2025: Fixed voice overlap timing with 5-second delays between speakers to prevent audio conflicts
+- June 23, 2025: Connected conversation templates to automatically start themed autonomous chats
+- June 23, 2025: Added template-specific host messages and enhanced AI prompts for better theme adherence
+- June 23, 2025: Updated conversation templates interface to auto-start conversations when templates are selected
 
 ## User Preferences
 
