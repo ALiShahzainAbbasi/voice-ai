@@ -24,6 +24,7 @@ export class OpenAIConversationManager {
   private isAutoConversationActive: boolean = false;
   private conversationHistory: string[] = [];
   private conversationContext: string = "";
+  private historicalContext: string = "";
 
   constructor(friends: Friend[], onStateChange: (state: ConversationState) => void) {
     console.log("OpenAI ConversationManager constructor - participants:", friends.length);
@@ -52,6 +53,11 @@ export class OpenAIConversationManager {
   public setConversationContext(context: string) {
     this.conversationContext = context;
     console.log("Conversation context set:", context);
+  }
+
+  public setHistoricalContext(context: string) {
+    this.historicalContext = context;
+    console.log("Historical context set:", context.length, "characters");
   }
 
   public async startConversation(): Promise<void> {
@@ -162,6 +168,16 @@ export class OpenAIConversationManager {
     const conversationContext = this.conversationHistory.slice(-10).join('\n');
     
     let prompt = `${lastSpeaker === 'user' ? 'The user just said' : `${lastSpeaker} just said`}: "${contextText}". Respond as ${friend.name} with specific details and concrete examples.`;
+    
+    // Add historical context from messages/emails/posts
+    if (this.historicalContext) {
+      prompt = `HISTORICAL CONTEXT (reference previous interactions when relevant):
+${this.historicalContext.slice(0, 1000)}
+
+${prompt}
+
+Use the historical context to create continuity and reference past conversations, shared experiences, or ongoing topics when appropriate.`;
+    }
     
     // Add conversation template context if set
     if (this.conversationContext) {
