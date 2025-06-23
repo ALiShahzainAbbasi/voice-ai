@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { OpenAIConversationManager, type ConversationState } from "@/lib/openai-conversation-manager";
+import { OpenAIConversationManager, type ConversationState, type ConversationMessage } from "@/lib/openai-conversation-manager";
 
 export default function VoiceOnly() {
   const [conversationManager, setConversationManager] = useState<OpenAIConversationManager | null>(null);
@@ -54,42 +54,172 @@ export default function VoiceOnly() {
 
     console.log("Voice-only voice input received:", speechText);
 
-    // Stop any existing conversation
-    if (conversationState.isActive) {
-      console.log("Stopping existing voice-only conversation");
-      conversationManager.stopConversation();
-      await new Promise(resolve => setTimeout(resolve, 1000));
+    // Add user message to conversation
+    const userMessage: ConversationMessage = {
+      id: `user-${Date.now()}`,
+      speaker: 'user',
+      text: speechText.trim(),
+      timestamp: new Date(),
+    };
+
+    setConversationState(prev => ({
+      ...prev,
+      messages: [...prev.messages, userMessage]
+    }));
+
+    // Generate a single friend response (not autonomous conversation)
+    if (friends.length > 0) {
+      const selectedFriend = friends[Math.floor(Math.random() * friends.length)];
+      
+      // Use the existing conversation manager to generate a response
+      const response = await fetch('/api/generate-conversation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: `The user just said: "${speechText}". Respond as ${selectedFriend.name} with a helpful, contextual response.`,
+          personality: selectedFriend.personality,
+          contextHistory: speechText
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const friendMessage = {
+          id: `friend-${selectedFriend.id}-${Date.now()}`,
+          speaker: 'friend' as const,
+          friendId: selectedFriend.id,
+          text: data.text || "That's interesting! Tell me more.",
+          timestamp: new Date(),
+        };
+
+        setConversationState(prev => ({
+          ...prev,
+          messages: [...prev.messages, friendMessage]
+        }));
+
+        // Generate voice for the response
+        const voiceResponse = await fetch('/api/generate-voice', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            text: friendMessage.text,
+            voiceId: selectedFriend.voiceId,
+            stability: selectedFriend.stability,
+            similarity: selectedFriend.similarity,
+          }),
+        });
+
+        if (voiceResponse.ok) {
+          const voiceData = await voiceResponse.json();
+          friendMessage.voiceUrl = voiceData.audioUrl;
+          
+          setConversationState(prev => ({
+            ...prev,
+            messages: prev.messages.map(msg => 
+              msg.id === friendMessage.id ? { ...msg, voiceUrl: voiceData.audioUrl } : msg
+            )
+          }));
+
+          // Auto-play the response
+          setTimeout(() => {
+            const audio = new Audio(voiceData.audioUrl);
+            audio.play().catch(console.error);
+          }, 500);
+        }
+      }
     }
-
-    // Clear any existing messages and start fresh conversation
-    conversationManager.stopConversation();
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    // Add the speech input as user message and trigger contextual responses
-    console.log("Starting new voice-only conversation with speech input as context");
-    await conversationManager.addUserMessage(speechText);
   };
 
   const handleTextInput = async () => {
-    if (!conversationManager || !textInput.trim()) return;
+    if (!textInput.trim()) return;
 
-    console.log("Voice-only text input received:", textInput);
+    const inputText = textInput.trim();
+    console.log("Voice-only text input received:", inputText);
 
-    // Stop any existing conversation
-    if (conversationState.isActive) {
-      console.log("Stopping existing voice-only conversation");
-      conversationManager.stopConversation();
-      await new Promise(resolve => setTimeout(resolve, 1000));
-    }
+    // Add user message to conversation
+    const userMessage = {
+      id: `user-${Date.now()}`,
+      speaker: 'user' as const,
+      text: inputText,
+      timestamp: new Date(),
+    };
 
-    // Clear any existing messages and start fresh conversation
-    conversationManager.stopConversation();
-    await new Promise(resolve => setTimeout(resolve, 500));
+    setConversationState(prev => ({
+      ...prev,
+      messages: [...prev.messages, userMessage]
+    }));
 
-    // Add the text input as user message and trigger contextual responses
-    console.log("Starting new voice-only conversation with text input as context");
-    await conversationManager.addUserMessage(textInput);
     setTextInput("");
+
+    // Generate a single friend response (not autonomous conversation)
+    if (friends.length > 0) {
+      const selectedFriend = friends[Math.floor(Math.random() * friends.length)];
+      
+      // Use the existing conversation manager to generate a response
+      const response = await fetch('/api/generate-conversation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: `The user just said: "${inputText}". Respond as ${selectedFriend.name} with a helpful, contextual response.`,
+          personality: selectedFriend.personality,
+          contextHistory: inputText
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const friendMessage = {
+          id: `friend-${selectedFriend.id}-${Date.now()}`,
+          speaker: 'friend' as const,
+          friendId: selectedFriend.id,
+          text: data.text || "That's interesting! Tell me more.",
+          timestamp: new Date(),
+        };
+
+        setConversationState(prev => ({
+          ...prev,
+          messages: [...prev.messages, friendMessage]
+        }));
+
+        // Generate voice for the response
+        const voiceResponse = await fetch('/api/generate-voice', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            text: friendMessage.text,
+            voiceId: selectedFriend.voiceId,
+            stability: selectedFriend.stability,
+            similarity: selectedFriend.similarity,
+          }),
+        });
+
+        if (voiceResponse.ok) {
+          const voiceData = await voiceResponse.json();
+          friendMessage.voiceUrl = voiceData.audioUrl;
+          
+          setConversationState(prev => ({
+            ...prev,
+            messages: prev.messages.map(msg => 
+              msg.id === friendMessage.id ? { ...msg, voiceUrl: voiceData.audioUrl } : msg
+            )
+          }));
+
+          // Auto-play the response
+          setTimeout(() => {
+            const audio = new Audio(voiceData.audioUrl);
+            audio.play().catch(console.error);
+          }, 500);
+        }
+      }
+    }
   };
 
   const handleStartConversation = async () => {
@@ -155,18 +285,74 @@ export default function VoiceOnly() {
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <MessageCircle className="w-6 h-6 text-purple-600" />
-                  <span>Live Voice Conversation</span>
+                  <span>Direct Voice Conversations</span>
                   <span className="text-sm text-gray-500">({friends.length} friends)</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <ConversationDisplay
-                  conversationState={conversationState}
-                  onPlayMessage={handlePlayMessage}
-                  onStartConversation={handleStartConversation}
-                  onStopConversation={handleStopConversation}
-                  isLoading={false}
-                />
+                {conversationState.messages.length > 0 ? (
+                  <div className="space-y-4">
+                    <div className="max-h-60 overflow-y-auto space-y-3 border rounded-lg p-4 bg-gray-50 dark:bg-gray-900">
+                      {conversationState.messages.map((message) => (
+                        <div
+                          key={message.id}
+                          className={`flex ${message.speaker === 'user' ? 'justify-end' : 'justify-start'}`}
+                        >
+                          <div
+                            className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                              message.speaker === 'user'
+                                ? 'bg-purple-600 text-white'
+                                : message.speaker === 'host'
+                                ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200'
+                                : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs opacity-75 mb-1">
+                                {message.speaker === 'user' ? 'You' : 
+                                 message.speaker === 'host' ? 'Host' :
+                                 friends.find(f => f.id === message.friendId)?.name || 'Friend'}
+                              </span>
+                              {message.voiceUrl && (
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => handlePlayMessage(message)}
+                                  className="h-6 w-6 p-0 ml-2"
+                                >
+                                  <Volume2 className="w-3 h-3" />
+                                </Button>
+                              )}
+                            </div>
+                            <p className="text-sm">{message.text}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <Button
+                      onClick={() => {
+                        if (conversationManager) {
+                          conversationManager.stopConversation();
+                          setConversationState({
+                            messages: [],
+                            isActive: false,
+                            participants: friends,
+                            lastSpeaker: undefined
+                          });
+                        }
+                      }}
+                      variant="outline"
+                      className="w-full"
+                    >
+                      Clear Conversation
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                    <MessageCircle className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                    <p>No conversations yet. Start speaking or typing to begin!</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
 

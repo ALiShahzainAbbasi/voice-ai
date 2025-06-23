@@ -22,13 +22,13 @@ function Navigation() {
           </h1>
           
           <div className="flex gap-4">
-            <Link href="/">
+            <Link href="/voice-only">
               <Button 
-                variant={location === "/" ? "default" : "outline"}
+                variant={location === "/voice-only" ? "default" : "outline"}
                 className="flex items-center gap-2"
               >
-                <Users className="w-4 h-4" />
-                Friends Manager
+                <Volume2 className="w-4 h-4" />
+                Voice Only
               </Button>
             </Link>
             
@@ -42,13 +42,13 @@ function Navigation() {
               </Button>
             </Link>
             
-            <Link href="/voice-only">
+            <Link href="/">
               <Button 
-                variant={location === "/voice-only" ? "default" : "outline"}
+                variant={location === "/" ? "default" : "outline"}
                 className="flex items-center gap-2"
               >
-                <Volume2 className="w-4 h-4" />
-                Voice Only
+                <Users className="w-4 h-4" />
+                Friends Manager
               </Button>
             </Link>
           </div>
