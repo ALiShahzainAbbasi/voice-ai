@@ -202,7 +202,7 @@ export function SpeechInput({ onTextSubmit, isProcessing = false }: SpeechInputP
                 size="sm"
               >
                 <Send className="w-4 h-4 mr-2" />
-                Send to Friends
+                Start Autonomous Chat
               </Button>
             </div>
           </div>

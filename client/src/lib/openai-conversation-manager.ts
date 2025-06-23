@@ -78,6 +78,10 @@ export class OpenAIConversationManager {
   }
 
   public async addUserMessage(text: string): Promise<void> {
+    // Make sure conversation is active
+    this.state.isActive = true;
+    this.conversationHistory = [];
+    
     const userMessage: ConversationMessage = {
       id: `user-${Date.now()}`,
       speaker: 'user',
@@ -184,6 +188,11 @@ export class OpenAIConversationManager {
         const data = await response.json();
         message.voiceUrl = data.audioUrl;
         this.notifyStateChange();
+        
+        // Auto-play the voice in autonomous conversations
+        setTimeout(() => {
+          this.playMessageAudio(message);
+        }, 500);
       }
     } catch (error) {
       console.error('Failed to generate friend voice:', error);
@@ -209,6 +218,11 @@ export class OpenAIConversationManager {
         const data = await response.json();
         message.voiceUrl = data.audioUrl;
         this.notifyStateChange();
+        
+        // Auto-play the voice in autonomous conversations
+        setTimeout(() => {
+          this.playMessageAudio(message);
+        }, 500);
       }
     } catch (error) {
       console.error('Failed to generate host voice:', error);
