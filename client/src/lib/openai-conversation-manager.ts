@@ -189,9 +189,9 @@ export class OpenAIConversationManager {
         message.voiceUrl = data.audioUrl;
         this.notifyStateChange();
         
-        // Auto-play the voice in autonomous conversations
-        setTimeout(() => {
-          this.playMessageAudio(message);
+        // Auto-play the voice in autonomous conversations and wait for completion
+        setTimeout(async () => {
+          await this.playMessageAudio(message);
         }, 500);
       }
     } catch (error) {
@@ -219,9 +219,9 @@ export class OpenAIConversationManager {
         message.voiceUrl = data.audioUrl;
         this.notifyStateChange();
         
-        // Auto-play the voice in autonomous conversations
-        setTimeout(() => {
-          this.playMessageAudio(message);
+        // Auto-play the voice in autonomous conversations and wait for completion
+        setTimeout(async () => {
+          await this.playMessageAudio(message);
         }, 500);
       }
     } catch (error) {
@@ -232,23 +232,38 @@ export class OpenAIConversationManager {
   public async playMessageAudio(message: ConversationMessage): Promise<void> {
     if (!message.voiceUrl) return;
 
-    try {
-      message.isPlaying = true;
-      this.notifyStateChange();
+    return new Promise((resolve) => {
+      try {
+        message.isPlaying = true;
+        this.notifyStateChange();
 
-      const audio = new Audio(message.voiceUrl);
-      
-      audio.onended = () => {
+        const audio = new Audio(message.voiceUrl);
+        
+        audio.onended = () => {
+          message.isPlaying = false;
+          this.notifyStateChange();
+          resolve();
+        };
+
+        audio.onerror = () => {
+          message.isPlaying = false;
+          this.notifyStateChange();
+          resolve();
+        };
+
+        audio.play().catch((error) => {
+          message.isPlaying = false;
+          this.notifyStateChange();
+          console.error('Failed to play message audio:', error);
+          resolve();
+        });
+      } catch (error) {
         message.isPlaying = false;
         this.notifyStateChange();
-      };
-
-      await audio.play();
-    } catch (error) {
-      message.isPlaying = false;
-      this.notifyStateChange();
-      console.error('Failed to play message audio:', error);
-    }
+        console.error('Failed to play message audio:', error);
+        resolve();
+      }
+    });
   }
 
   public stopConversation(): void {
@@ -285,8 +300,8 @@ export class OpenAIConversationManager {
     if (!this.isAutoConversationActive || !this.state.isActive) return;
 
     try {
-      // Wait for any current audio to finish to prevent overlap
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Wait longer for any current audio to finish completely
+      await new Promise(resolve => setTimeout(resolve, 5000));
       
       // Double-check if conversation is still active after delay
       if (!this.isAutoConversationActive || !this.state.isActive) return;
