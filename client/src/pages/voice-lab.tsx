@@ -6,7 +6,7 @@ import { ConversationIntegration } from "@/components/conversation-integration";
 import { TextInputSection } from "@/components/text-input-section";
 import { VoiceControlPanel } from "@/components/voice-control-panel";
 import { SpeechInput } from "@/components/speech-input";
-import { ConversationManager, type ConversationState } from "@/lib/conversation-manager";
+import { OpenAIConversationManager, type ConversationState } from "@/lib/openai-conversation-manager";
 import { generateVoiceForAllFriends } from "@/lib/voice-service";
 import { LocalStorageService } from "@/lib/local-storage";
 
@@ -15,7 +15,7 @@ export default function VoiceLab() {
   const [playbackSpeed, setPlaybackSpeed] = useState(1.0);
   const [masterVolume, setMasterVolume] = useState(1.0);
   const [isTestingAll, setIsTestingAll] = useState(false);
-  const [conversationManager, setConversationManager] = useState<ConversationManager | null>(null);
+  const [conversationManager, setConversationManager] = useState<OpenAIConversationManager | null>(null);
   const [conversationState, setConversationState] = useState<ConversationState>({
     messages: [],
     isActive: false,
@@ -34,9 +34,9 @@ export default function VoiceLab() {
       if (conversationManager) {
         conversationManager.updateParticipants(friends);
       } else {
-        const manager = new ConversationManager(friends, setConversationState);
+        const manager = new OpenAIConversationManager(friends, setConversationState);
         setConversationManager(manager);
-        console.log("Conversation manager initialized with", friends.length, "friends");
+        console.log("OpenAI conversation manager initialized with", friends.length, "friends");
       }
     } else {
       console.log("Conversation manager cleared - no friends");
