@@ -23,6 +23,7 @@ export class OpenAIConversationManager {
   private conversationTimer: NodeJS.Timeout | null = null;
   private isAutoConversationActive: boolean = false;
   private conversationHistory: string[] = [];
+  private conversationContext: string = "";
 
   constructor(friends: Friend[], onStateChange: (state: ConversationState) => void) {
     console.log("OpenAI ConversationManager constructor - participants:", friends.length);
@@ -46,6 +47,11 @@ export class OpenAIConversationManager {
     this.state.participants = [...friends];
     console.log("Updated participants in OpenAI conversation manager:", friends.length);
     this.notifyStateChange();
+  }
+
+  public setConversationContext(context: string) {
+    this.conversationContext = context;
+    console.log("Conversation context set:", context);
   }
 
   public async startConversation(): Promise<void> {
@@ -139,7 +145,12 @@ export class OpenAIConversationManager {
   ): Promise<string> {
     const conversationContext = this.conversationHistory.slice(-10).join('\n');
     
-    const prompt = `${lastSpeaker === 'user' ? 'The user just said' : `${lastSpeaker} just said`}: "${contextText}". Respond as ${friend.name} with specific details and concrete examples.`;
+    let prompt = `${lastSpeaker === 'user' ? 'The user just said' : `${lastSpeaker} just said`}: "${contextText}". Respond as ${friend.name} with specific details and concrete examples.`;
+    
+    // Add conversation template context if set
+    if (this.conversationContext) {
+      prompt = `Conversation context: ${this.conversationContext}. ${prompt} Make sure your response fits the conversation scenario.`;
+    }
 
     try {
       const response = await fetch('/api/generate-conversation', {
@@ -333,7 +344,7 @@ export class OpenAIConversationManager {
   private async generateAIHostComment(): Promise<void> {
     const conversationContext = this.conversationHistory.slice(-8).join('\n');
     
-    const systemPrompt = `You are a friendly conversation host facilitating a chat between friends. Your job is to keep the conversation flowing naturally by making encouraging comments that reference specific shared experiences and memories.
+    let systemPrompt = `You are a friendly conversation host facilitating a chat between friends. Your job is to keep the conversation flowing naturally by making encouraging comments that reference specific shared experiences and memories.
 
 CRITICAL RULES:
 1. Reference specific places, events, and shared memories
@@ -346,6 +357,11 @@ Recent conversation:
 ${conversationContext}
 
 Make a brief host comment that encourages the conversation and references specific shared experiences.`;
+
+    // Add conversation template context if set
+    if (this.conversationContext) {
+      systemPrompt = `Conversation scenario: ${this.conversationContext}. ${systemPrompt} Make sure your host comment fits this conversation scenario and topic.`;
+    }
 
     try {
       const response = await fetch('/api/generate-conversation', {
