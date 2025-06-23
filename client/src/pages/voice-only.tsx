@@ -50,7 +50,7 @@ export default function VoiceOnly() {
   }, [friends]);
 
   const handleSpeechInput = async (speechText: string) => {
-    if (!conversationManager || !speechText.trim()) return;
+    if (!speechText.trim() || friends.length === 0) return;
 
     console.log("Voice-only voice input received:", speechText);
 
@@ -67,11 +67,10 @@ export default function VoiceOnly() {
       messages: [...prev.messages, userMessage]
     }));
 
-    // Generate a single friend response (not autonomous conversation)
-    if (friends.length > 0) {
-      const selectedFriend = friends[Math.floor(Math.random() * friends.length)];
-      
-      // Use the existing conversation manager to generate a response
+    // Generate a single friend response
+    const selectedFriend = friends[Math.floor(Math.random() * friends.length)];
+    
+    try {
       const response = await fetch('/api/generate-conversation', {
         method: 'POST',
         headers: {
@@ -86,14 +85,16 @@ export default function VoiceOnly() {
 
       if (response.ok) {
         const data = await response.json();
-        const friendMessage = {
+        const friendMessage: ConversationMessage = {
           id: `friend-${selectedFriend.id}-${Date.now()}`,
-          speaker: 'friend' as const,
+          speaker: 'friend',
           friendId: selectedFriend.id,
           text: data.text || "That's interesting! Tell me more.",
           timestamp: new Date(),
+          voiceUrl: undefined,
         };
 
+        // Add message to state first
         setConversationState(prev => ({
           ...prev,
           messages: [...prev.messages, friendMessage]
@@ -115,8 +116,8 @@ export default function VoiceOnly() {
 
         if (voiceResponse.ok) {
           const voiceData = await voiceResponse.json();
-          friendMessage.voiceUrl = voiceData.audioUrl;
           
+          // Update message with voice URL
           setConversationState(prev => ({
             ...prev,
             messages: prev.messages.map(msg => 
@@ -131,19 +132,21 @@ export default function VoiceOnly() {
           }, 500);
         }
       }
+    } catch (error) {
+      console.error('Failed to generate response:', error);
     }
   };
 
   const handleTextInput = async () => {
-    if (!textInput.trim()) return;
+    if (!textInput.trim() || friends.length === 0) return;
 
     const inputText = textInput.trim();
     console.log("Voice-only text input received:", inputText);
 
     // Add user message to conversation
-    const userMessage = {
+    const userMessage: ConversationMessage = {
       id: `user-${Date.now()}`,
-      speaker: 'user' as const,
+      speaker: 'user',
       text: inputText,
       timestamp: new Date(),
     };
@@ -155,11 +158,10 @@ export default function VoiceOnly() {
 
     setTextInput("");
 
-    // Generate a single friend response (not autonomous conversation)
-    if (friends.length > 0) {
-      const selectedFriend = friends[Math.floor(Math.random() * friends.length)];
-      
-      // Use the existing conversation manager to generate a response
+    // Generate a single friend response
+    const selectedFriend = friends[Math.floor(Math.random() * friends.length)];
+    
+    try {
       const response = await fetch('/api/generate-conversation', {
         method: 'POST',
         headers: {
@@ -174,14 +176,16 @@ export default function VoiceOnly() {
 
       if (response.ok) {
         const data = await response.json();
-        const friendMessage = {
+        const friendMessage: ConversationMessage = {
           id: `friend-${selectedFriend.id}-${Date.now()}`,
-          speaker: 'friend' as const,
+          speaker: 'friend',
           friendId: selectedFriend.id,
           text: data.text || "That's interesting! Tell me more.",
           timestamp: new Date(),
+          voiceUrl: undefined,
         };
 
+        // Add message to state first
         setConversationState(prev => ({
           ...prev,
           messages: [...prev.messages, friendMessage]
@@ -203,8 +207,8 @@ export default function VoiceOnly() {
 
         if (voiceResponse.ok) {
           const voiceData = await voiceResponse.json();
-          friendMessage.voiceUrl = voiceData.audioUrl;
           
+          // Update message with voice URL
           setConversationState(prev => ({
             ...prev,
             messages: prev.messages.map(msg => 
@@ -219,6 +223,8 @@ export default function VoiceOnly() {
           }, 500);
         }
       }
+    } catch (error) {
+      console.error('Failed to generate response:', error);
     }
   };
 
@@ -235,10 +241,15 @@ export default function VoiceOnly() {
     }
   };
 
-  const handlePlayMessage = async (message: any) => {
-    if (!conversationManager) return;
+  const handlePlayMessage = async (message: ConversationMessage) => {
+    if (!message.voiceUrl) return;
     
-    await conversationManager.playMessageAudio(message);
+    try {
+      const audio = new Audio(message.voiceUrl);
+      await audio.play();
+    } catch (error) {
+      console.error('Failed to play message audio:', error);
+    }
   };
 
   if (isLoading) {
