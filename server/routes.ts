@@ -307,7 +307,7 @@ Respond authentically with specific details and concrete examples.`;
           { role: "system", content: systemPrompt },
           { role: "user", content: prompt }
         ],
-        max_tokens: 150,
+        max_tokens: 200,
         temperature: 0.8,
       });
 

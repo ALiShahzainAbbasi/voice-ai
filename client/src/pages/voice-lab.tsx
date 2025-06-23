@@ -198,7 +198,7 @@ export default function VoiceLab() {
             Voice Manager
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400">
-            Test voices, generate conversations, and explore AI dialogue
+            Test voices, generate conversations, and explore AI dialogue with historical context
           </p>
         </div>
 
@@ -241,7 +241,6 @@ export default function VoiceLab() {
                 </CardContent>
               </Card>
 
-              {/* Speech Input */}
               <Card>
                 <CardHeader>
                   <CardTitle>Voice Input</CardTitle>
@@ -257,7 +256,6 @@ export default function VoiceLab() {
                 </CardContent>
               </Card>
 
-              {/* Conversation Templates */}
               <Card>
                 <CardHeader>
                   <CardTitle>Conversation Templates</CardTitle>
@@ -301,7 +299,6 @@ export default function VoiceLab() {
                 </CardContent>
               </Card>
 
-              {/* Voice Control Panel */}
               <Card>
                 <CardHeader>
                   <CardTitle>Voice Controls</CardTitle>
