@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Download, Upload, Save, Trash2, Edit2 } from "lucide-react";
+import { Plus, Download, Upload, Save, Trash2, Edit2, Mic2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FriendCard } from "@/components/friend-card";
 import { FriendEditModal } from "@/components/friend-edit-modal";
+import { VoiceCloning } from "@/components/voice-cloning";
 import { useToast } from "@/hooks/use-toast";
 import { LocalStorageService } from "@/lib/local-storage";
 import { apiRequest } from "@/lib/queryClient";
@@ -161,6 +164,13 @@ export default function Home() {
     );
   }
 
+  const handleVoiceCloned = (voiceClone: any) => {
+    toast({
+      title: "Voice Clone Created",
+      description: `Successfully created voice clone "${voiceClone.name}"`,
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950 dark:to-blue-950 p-6">
       <div className="max-w-6xl mx-auto space-y-8">
@@ -177,7 +187,17 @@ export default function Home() {
           </p>
         </div>
 
-        {/* Action Bar */}
+        <Tabs defaultValue="friends" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="friends">Virtual Friends</TabsTrigger>
+            <TabsTrigger value="voice-cloning">
+              <Mic2 className="w-4 h-4 mr-2" />
+              Voice Cloning
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="friends" className="space-y-6">
+            {/* Action Bar */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
           <div className="flex flex-wrap gap-4 items-center justify-between">
             <div className="flex gap-4">
@@ -247,14 +267,30 @@ export default function Home() {
             </div>
           )}
         </div>
+      </TabsContent>
 
-        {/* Friend Edit Modal */}
-        <FriendEditModal
-          friend={editingFriend}
-          isOpen={isEditModalOpen}
-          onClose={() => setIsEditModalOpen(false)}
-          onSave={handleModalSave}
-        />
+      <TabsContent value="voice-cloning" className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <Mic2 className="w-5 h-5 text-purple-600" />
+              <span>Custom Voice Cloning</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <VoiceCloning onVoiceCloned={handleVoiceCloned} />
+          </CardContent>
+        </Card>
+      </TabsContent>
+    </Tabs>
+
+    {/* Friend Edit Modal */}
+    <FriendEditModal
+      friend={editingFriend}
+      isOpen={isEditModalOpen}
+      onClose={() => setIsEditModalOpen(false)}
+      onSave={handleModalSave}
+    />
       </div>
     </div>
   );
