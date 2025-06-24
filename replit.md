@@ -154,6 +154,9 @@ This is a full-stack React application built for testing voice synthesis with di
 - June 23, 2025: Implemented talking video generator that converts user selfies into speaking avatars using AI voice synthesis
 - June 23, 2025: Added camera capture functionality for selfie-to-video conversion with real-time photo capture
 - June 23, 2025: Created backend API endpoint for talking video generation with voice audio integration
+- June 23, 2025: Created full-screen Voice Only Mode with continuous listening and hands-free conversation interruption
+- June 23, 2025: Added mobile-optimized interface with clean design for distraction-free voice interactions
+- June 23, 2025: Implemented real-time speech recognition with automatic conversation restart and audio interruption support
 
 ## User Preferences
 
