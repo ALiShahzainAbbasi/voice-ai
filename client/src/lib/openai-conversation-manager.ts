@@ -399,7 +399,7 @@ CRITICAL: Your response as ${friend.name} must directly relate to and explore th
 
 CRITICAL RULES:
 1. Reference specific places, events, and shared memories
-2. Keep comments brief (1-2 sentences)
+2. Keep comments VERY brief (1 sentence maximum)
 3. Use encouraging, positive tone
 4. Connect what people are saying to shared experiences
 5. Mention actual locations, names, dates, and specific events
@@ -407,7 +407,7 @@ CRITICAL RULES:
 Recent conversation:
 ${conversationContext}
 
-Make a brief host comment that encourages the conversation and references specific shared experiences.`;
+Make a very brief host comment (1 sentence only) that encourages the conversation and references specific shared experiences.`;
 
     // Add conversation template context if set
     if (this.conversationContext) {
