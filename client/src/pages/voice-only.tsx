@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Mic, MicOff, MessageCircle, Users, Volume2 } from "lucide-react";
+import { Mic, MicOff, MessageCircle, Users, Volume2, Maximize } from "lucide-react";
 import type { Friend } from "@shared/schema";
 import { ConversationDisplay } from "@/components/conversation-display";
 import { SpeechInput } from "@/components/speech-input";
+import { VoiceOnlyMode } from "@/components/voice-only-mode";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,6 +20,7 @@ export default function VoiceOnly() {
     lastSpeaker: undefined
   });
   const [textInput, setTextInput] = useState("");
+  const [isFullScreenMode, setIsFullScreenMode] = useState(false);
 
   const { data: friends = [], isLoading } = useQuery<Friend[]>({
     queryKey: ['/api/friends'],
@@ -252,6 +254,24 @@ export default function VoiceOnly() {
     }
   };
 
+  const enterFullScreenMode = () => {
+    setIsFullScreenMode(true);
+  };
+
+  const exitFullScreenMode = () => {
+    setIsFullScreenMode(false);
+  };
+
+  // Full-screen Voice Only Mode
+  if (isFullScreenMode) {
+    return (
+      <VoiceOnlyMode 
+        friends={friends}
+        onExitMode={exitFullScreenMode}
+      />
+    );
+  }
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950 dark:to-blue-950 p-6">
@@ -379,13 +399,32 @@ export default function VoiceOnly() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 dark:text-gray-400 mb-4">
-                  Speak to start a conversation with your virtual friends
-                </p>
-                <SpeechInput 
-                  onTextSubmit={handleSpeechInput}
-                  isProcessing={conversationState.isActive}
-                />
+                <div className="space-y-4">
+                  <p className="text-gray-600 dark:text-gray-400">
+                    Speak to start a conversation with your virtual friends
+                  </p>
+                  
+                  <div className="flex flex-col space-y-3">
+                    <SpeechInput 
+                      onTextSubmit={handleSpeechInput}
+                      isProcessing={conversationState.isActive}
+                    />
+                    
+                    <div className="flex justify-center">
+                      <Button
+                        onClick={enterFullScreenMode}
+                        className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-6 py-3 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105"
+                      >
+                        <Maximize className="w-5 h-5 mr-2" />
+                        Enter Voice Only Mode
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <div className="text-center text-sm text-gray-500 dark:text-gray-400 bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg">
+                    <strong>Voice Only Mode:</strong> Clean, mobile-friendly interface with continuous listening and interruption support
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
