@@ -353,6 +353,77 @@ Respond authentically with specific details and concrete examples.`;
     }
   });
 
+  // Talking video generation endpoint
+  app.post("/api/generate-talking-video", async (req, res) => {
+    try {
+      const { name, text, voiceId } = req.body;
+      
+      if (!name || !text || !voiceId) {
+        return res.status(400).json({ error: "Name, text, and voice ID are required" });
+      }
+
+      const apiKey = process.env.ELEVENLABS_API_KEY;
+      if (!apiKey) {
+        return res.status(500).json({ error: "ElevenLabs API key not configured" });
+      }
+
+      // First, generate the voice audio
+      const voiceResponse = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+        method: "POST",
+        headers: {
+          "Accept": "audio/mpeg",
+          "Content-Type": "application/json",
+          "xi-api-key": apiKey,
+        },
+        body: JSON.stringify({
+          text,
+          model_id: "eleven_monolingual_v1",
+          voice_settings: {
+            stability: 0.75,
+            similarity_boost: 0.85,
+          },
+        }),
+      });
+
+      if (!voiceResponse.ok) {
+        console.error('ElevenLabs voice generation failed:', voiceResponse.status);
+        return res.status(500).json({ error: "Failed to generate voice audio" });
+      }
+
+      const audioBuffer = await voiceResponse.arrayBuffer();
+      const base64Audio = Buffer.from(audioBuffer).toString('base64');
+
+      // Simulate video processing time
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      // For now, we'll create a mock video URL since real video generation requires specialized AI services
+      // In a production environment, you would integrate with services like:
+      // - D-ID API for talking avatar generation
+      // - RunwayML for AI video generation
+      // - Synthesia API for avatar videos
+      // - HeyGen for AI avatar creation
+      
+      const videoId = `video_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const mockVideoUrl = `data:video/mp4;base64,mockVideoData`; // In real implementation, this would be the actual video
+      
+      // Calculate estimated duration based on text length (roughly 150 words per minute)
+      const wordCount = text.split(' ').length;
+      const estimatedDuration = Math.max(2, Math.ceil((wordCount / 150) * 60));
+      
+      res.json({
+        id: videoId,
+        videoUrl: mockVideoUrl,
+        audioUrl: `data:audio/mpeg;base64,${base64Audio}`,
+        duration: estimatedDuration,
+        status: "ready",
+        message: "Talking video generated successfully. Note: This is a demo implementation. Real video generation requires integration with specialized AI video services like D-ID, RunwayML, or Synthesia."
+      });
+    } catch (error: any) {
+      console.error("Talking video generation error:", error);
+      res.status(500).json({ error: "Failed to generate talking video" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

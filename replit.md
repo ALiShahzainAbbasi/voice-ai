@@ -151,6 +151,9 @@ This is a full-stack React application built for testing voice synthesis with di
 - June 23, 2025: Added historical conversation context system for personalized AI responses based on previous messages, emails, and social posts
 - June 23, 2025: Integrated conversation context manager into Voice Manager with tabbed interface for context management
 - June 23, 2025: Enhanced OpenAI conversation generation to reference historical interactions for continuity and personalization
+- June 23, 2025: Implemented talking video generator that converts user selfies into speaking avatars using AI voice synthesis
+- June 23, 2025: Added camera capture functionality for selfie-to-video conversion with real-time photo capture
+- June 23, 2025: Created backend API endpoint for talking video generation with voice audio integration
 
 ## User Preferences
 

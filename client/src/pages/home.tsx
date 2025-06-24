@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Download, Upload, Save, Trash2, Edit2, Mic2 } from "lucide-react";
+import { Plus, Download, Upload, Save, Trash2, Edit2, Mic2, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FriendCard } from "@/components/friend-card";
 import { FriendEditModal } from "@/components/friend-edit-modal";
 import { VoiceCloning } from "@/components/voice-cloning";
+import { TalkingVideoGenerator } from "@/components/talking-video-generator";
 import { useToast } from "@/hooks/use-toast";
 import { LocalStorageService } from "@/lib/local-storage";
 import { apiRequest } from "@/lib/queryClient";
@@ -171,6 +172,13 @@ export default function Home() {
     });
   };
 
+  const handleVideoGenerated = (video: any) => {
+    toast({
+      title: "Talking Video Created",
+      description: `Successfully generated talking video "${video.name}"`,
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950 dark:to-blue-950 p-6">
       <div className="max-w-6xl mx-auto space-y-8">
@@ -188,11 +196,15 @@ export default function Home() {
         </div>
 
         <Tabs defaultValue="friends" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="friends">Virtual Friends</TabsTrigger>
             <TabsTrigger value="voice-cloning">
               <Mic2 className="w-4 h-4 mr-2" />
               Voice Cloning
+            </TabsTrigger>
+            <TabsTrigger value="talking-videos">
+              <Video className="w-4 h-4 mr-2" />
+              Talking Videos
             </TabsTrigger>
           </TabsList>
 
@@ -279,6 +291,23 @@ export default function Home() {
           </CardHeader>
           <CardContent>
             <VoiceCloning onVoiceCloned={handleVoiceCloned} />
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      <TabsContent value="talking-videos" className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <Video className="w-5 h-5 text-green-600" />
+              <span>Talking Video Generator</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <TalkingVideoGenerator 
+              friends={friends}
+              onVideoGenerated={handleVideoGenerated} 
+            />
           </CardContent>
         </Card>
       </TabsContent>
