@@ -167,7 +167,7 @@ export class OpenAIConversationManager {
   ): Promise<string> {
     const conversationContext = this.conversationHistory.slice(-10).join('\n');
     
-    let prompt = `${lastSpeaker === 'user' ? 'The user just said' : `${lastSpeaker} just said`}: "${contextText}". Respond as ${friend.name} with specific details and concrete examples.`;
+    let prompt = `${lastSpeaker === 'user' ? 'The user just said' : `${lastSpeaker} just said`}: "${contextText}". Respond as ${friend.name} with a brief, concise response (1-2 sentences maximum).`;
     
     // Add historical context from messages/emails/posts
     if (this.historicalContext) {
@@ -281,10 +281,17 @@ CRITICAL: Your response as ${friend.name} must directly relate to and explore th
 
     return new Promise((resolve) => {
       try {
+        // Validate URL format
+        if (!message.voiceUrl || (!message.voiceUrl.startsWith('http') && !message.voiceUrl.startsWith('data:'))) {
+          console.warn('Invalid audio URL format for message:', message.id);
+          resolve();
+          return;
+        }
+
         message.isPlaying = true;
         this.notifyStateChange();
 
-        const audio = new Audio(message.voiceUrl);
+        const audio = new Audio();
         
         audio.onended = () => {
           message.isPlaying = false;
@@ -292,22 +299,30 @@ CRITICAL: Your response as ${friend.name} must directly relate to and explore th
           resolve();
         };
 
-        audio.onerror = () => {
+        audio.onerror = (error) => {
           message.isPlaying = false;
           this.notifyStateChange();
+          console.warn('Audio playback error for message:', message.id);
           resolve();
         };
 
+        audio.onloadstart = () => {
+          console.log('Audio loading for message:', message.id);
+        };
+
+        // Set source after event listeners
+        audio.src = message.voiceUrl;
+        
         audio.play().catch((error) => {
           message.isPlaying = false;
           this.notifyStateChange();
-          console.error('Failed to play message audio:', error);
+          console.warn('Audio play failed for message:', message.id);
           resolve();
         });
       } catch (error) {
         message.isPlaying = false;
         this.notifyStateChange();
-        console.error('Failed to play message audio:', error);
+        console.warn('Audio setup failed for message:', message.id);
         resolve();
       }
     });
@@ -328,10 +343,10 @@ CRITICAL: Your response as ${friend.name} must directly relate to and explore th
     this.isAutoConversationActive = true;
     console.log('Starting OpenAI autonomous conversation mode');
     
-    // Start the conversation flow after 4 seconds to let any current audio finish
+    // Start the conversation flow after 2 seconds to let any current audio finish
     setTimeout(() => {
       this.generateNextConversationTurn();
-    }, 4000);
+    }, 2000);
   }
 
   private stopAutonomousConversation(): void {
@@ -347,8 +362,8 @@ CRITICAL: Your response as ${friend.name} must directly relate to and explore th
     if (!this.isAutoConversationActive || !this.state.isActive) return;
 
     try {
-      // Wait longer for any current audio to finish completely
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      // Wait for any current audio to finish
+      await new Promise(resolve => setTimeout(resolve, 2500));
       
       // Double-check if conversation is still active after delay
       if (!this.isAutoConversationActive || !this.state.isActive) return;
@@ -362,8 +377,8 @@ CRITICAL: Your response as ${friend.name} must directly relate to and explore th
         await this.generateAIFriendConversation();
       }
 
-      // Schedule next turn with longer delay to prevent overlap (7-12 seconds)
-      const nextDelay = 7000 + Math.random() * 5000;
+      // Schedule next turn with shorter delay (3.5-6 seconds)
+      const nextDelay = 3500 + Math.random() * 2500;
       this.conversationTimer = setTimeout(() => {
         this.generateNextConversationTurn();
       }, nextDelay);
