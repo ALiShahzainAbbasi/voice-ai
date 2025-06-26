@@ -109,17 +109,42 @@ export function TalkingVideoGenerator({ friends, onVideoGenerated }: TalkingVide
   };
 
   const capturePhoto = () => {
-    if (!videoRef.current || !canvasRef.current) return;
+    if (!videoRef.current || !canvasRef.current) {
+      console.error('Video or canvas ref not available');
+      toast({
+        title: "Capture Failed",
+        description: "Camera not ready. Please try again.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     const canvas = canvasRef.current;
     const video = videoRef.current;
     const context = canvas.getContext('2d');
     
-    if (!context) return;
+    if (!context) {
+      console.error('Canvas context not available');
+      return;
+    }
+
+    // Ensure video has loaded and has dimensions
+    if (video.videoWidth === 0 || video.videoHeight === 0) {
+      console.error('Video not ready:', video.videoWidth, video.videoHeight);
+      toast({
+        title: "Video Not Ready",
+        description: "Please wait for camera to initialize completely.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
-    context.drawImage(video, 0, 0);
+    
+    // Clear canvas and draw video frame
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
     canvas.toBlob((blob) => {
       if (blob) {
@@ -135,6 +160,12 @@ export function TalkingVideoGenerator({ friends, onVideoGenerated }: TalkingVide
         toast({
           title: "Photo Captured",
           description: "Selfie captured successfully. Ready to generate talking video!",
+        });
+      } else {
+        toast({
+          title: "Capture Failed",
+          description: "Failed to capture photo. Please try again.",
+          variant: "destructive",
         });
       }
     }, 'image/jpeg', 0.8);

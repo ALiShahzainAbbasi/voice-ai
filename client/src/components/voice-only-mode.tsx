@@ -87,11 +87,13 @@ export function VoiceOnlyMode({ friends, onExitMode }: VoiceOnlyModeProps) {
       
       recognition.onend = () => {
         setIsListening(false);
-        // Auto-restart listening unless manually stopped
-        if (recognitionRef.current) {
+        // Auto-restart listening unless manually stopped or muted
+        if (recognitionRef.current && !isMuted) {
           setTimeout(() => {
-            startListening();
-          }, 500);
+            if (!isProcessing) {
+              startListening();
+            }
+          }, 1000);
         }
       };
       
@@ -137,7 +139,12 @@ export function VoiceOnlyMode({ friends, onExitMode }: VoiceOnlyModeProps) {
       try {
         recognitionRef.current.start();
       } catch (error) {
-        console.error("Failed to start speech recognition:", error);
+        if (error.name === 'InvalidStateError') {
+          // Recognition is already running, just update state
+          setIsListening(true);
+        } else {
+          console.error("Failed to start speech recognition:", error);
+        }
       }
     }
   };
@@ -159,24 +166,36 @@ export function VoiceOnlyMode({ friends, onExitMode }: VoiceOnlyModeProps) {
     if (currentAudioRef.current) {
       currentAudioRef.current.pause();
       currentAudioRef.current.currentTime = 0;
+      currentAudioRef.current = null;
     }
     
-    // Stop conversation manager temporarily
+    // Interrupt conversation flow and prioritize user input
     if (conversationManager) {
+      // Stop autonomous conversation
       conversationManager.stopConversation();
       
       // Small delay to ensure cleanup
-      await new Promise(resolve => setTimeout(resolve, 200));
+      await new Promise(resolve => setTimeout(resolve, 300));
       
-      // Add user message and generate response
+      // Add user message and generate immediate response
       await conversationManager.addUserMessage(transcript);
+      
+      // Restart conversation with new context after user input
+      setTimeout(() => {
+        if (conversationManager) {
+          conversationManager.startConversation();
+        }
+      }, 2000);
     }
     
     setIsProcessing(false);
     
-    // Clear interruption timeout if it exists
+    // Clear any pending timers
     if (interruptionTimeoutRef.current) {
       clearTimeout(interruptionTimeoutRef.current);
+    }
+    if (silenceTimerRef.current) {
+      clearTimeout(silenceTimerRef.current);
     }
   };
 
