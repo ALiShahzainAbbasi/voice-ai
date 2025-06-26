@@ -139,7 +139,8 @@ export function VoiceOnlyMode({ friends, onExitMode }: VoiceOnlyModeProps) {
       try {
         recognitionRef.current.start();
       } catch (error) {
-        if (error.name === 'InvalidStateError') {
+        const err = error as any;
+        if (err.name === 'InvalidStateError') {
           // Recognition is already running, just update state
           setIsListening(true);
         } else {
@@ -182,10 +183,10 @@ export function VoiceOnlyMode({ friends, onExitMode }: VoiceOnlyModeProps) {
       
       // Restart conversation with new context after user input
       setTimeout(() => {
-        if (conversationManager) {
+        if (conversationManager && !isProcessing) {
           conversationManager.startConversation();
         }
-      }, 2000);
+      }, 3000);
     }
     
     setIsProcessing(false);
