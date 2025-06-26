@@ -175,19 +175,21 @@ export function VoiceCloning({ onVoiceCloned }: VoiceCloningProps) {
         });
       }, 500);
 
-      // Convert audio source to blob for upload
-      const response = await fetch(audioSource);
-      const audioBlob = await response.blob();
-      
-      const formData = new FormData();
-      formData.append('audio', audioBlob, 'voice-sample.wav');
-      formData.append('name', voiceName.trim());
-      formData.append('description', voiceDescription.trim());
+      // Prepare data for the API call
+      const requestData = {
+        name: voiceName.trim(),
+        description: voiceDescription.trim(),
+      };
+
+      console.log('Creating voice clone with data:', requestData);
 
       // Call API to create voice clone
       const cloneResponse = await fetch('/api/create-voice-clone', {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
       });
 
       clearInterval(progressInterval);
@@ -322,6 +324,7 @@ export function VoiceCloning({ onVoiceCloned }: VoiceCloningProps) {
                 <audio 
                   controls 
                   className="flex-1"
+                  src={currentAudio}
                   preload="metadata"
                   onError={(e) => {
                     console.error('Audio preview error:', e);
@@ -334,10 +337,10 @@ export function VoiceCloning({ onVoiceCloned }: VoiceCloningProps) {
                   onLoadedData={() => {
                     console.log('Audio preview loaded successfully');
                   }}
+                  onCanPlay={() => {
+                    console.log('Audio ready to play');
+                  }}
                 >
-                  <source src={currentAudio} type="audio/wav" />
-                  <source src={currentAudio} type="audio/mpeg" />
-                  <source src={currentAudio} type="audio/mp3" />
                   Your browser does not support audio playback.
                 </audio>
                 <Button

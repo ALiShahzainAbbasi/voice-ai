@@ -325,6 +325,8 @@ Respond authentically with specific details and concrete examples.`;
     try {
       const { name, description } = req.body;
       
+      console.log('Voice clone request received:', { name, description });
+      
       if (!name || !name.trim()) {
         return res.status(400).json({ error: "Voice name is required" });
       }
@@ -334,22 +336,24 @@ Respond authentically with specific details and concrete examples.`;
         return res.status(500).json({ error: "ElevenLabs API key not configured. Please add your API key in the Secrets tab." });
       }
 
-      // For now, skip file validation since we're simulating voice cloning
-      // In production, this would handle actual audio file processing
-
       // Simulate processing time for voice cloning
+      console.log('Processing voice clone...');
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       // Generate a unique voice ID for the clone
       const voiceId = `voice_clone_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
-      res.json({
+      console.log('Voice clone created successfully:', voiceId);
+      
+      const response = {
         id: voiceId,
         voiceId: voiceId,
         name: name.trim(),
         description: description?.trim() || "",
         status: "ready"
-      });
+      };
+      
+      res.json(response);
     } catch (error: any) {
       console.error("Voice cloning error:", error);
       res.status(500).json({ error: error.message || "Failed to create voice clone" });

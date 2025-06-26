@@ -106,9 +106,13 @@ export class OpenAIConversationManager {
   }
 
   public async addUserMessage(text: string): Promise<void> {
+    console.log("Adding user message:", text);
+    
+    // Stop any autonomous conversation
+    this.stopAutonomousConversation();
+    
     // Make sure conversation is active
     this.state.isActive = true;
-    this.conversationHistory = [];
     
     const userMessage: ConversationMessage = {
       id: `user-${Date.now()}`,
@@ -119,16 +123,20 @@ export class OpenAIConversationManager {
 
     this.state.messages.push(userMessage);
     this.state.lastSpeaker = 'user';
+    
+    // Update conversation history to include this user input
     this.conversationHistory.push(`User: ${text.trim()}`);
     this.notifyStateChange();
 
-    // Generate AI-powered friend response to user
+    console.log("User message added to conversation, generating response...");
+
+    // Generate AI-powered friend response to user input
     await this.generateAIFriendResponse(text);
     
-    // Start autonomous conversation using the user's input as context
-    if (!this.isAutoConversationActive) {
+    // Brief delay before resuming autonomous conversation
+    setTimeout(() => {
       this.startAutonomousConversation();
-    }
+    }, 2000);
   }
 
   private async generateAIFriendResponse(userText: string): Promise<void> {
