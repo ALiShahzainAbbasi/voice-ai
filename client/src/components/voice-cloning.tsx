@@ -435,9 +435,26 @@ export function VoiceCloning({ onVoiceCloned }: VoiceCloningProps) {
                     </p>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <audio controls className="w-32">
-                      <source src={clone.audioUrl} type="audio/wav" />
-                    </audio>
+                    {clone.audioUrl && (
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          const audio = new Audio(clone.audioUrl);
+                          audio.play().catch(error => {
+                            console.error('Audio playback failed:', error);
+                            toast({
+                              title: "Audio Playback Failed",
+                              description: "Unable to play voice clone audio",
+                              variant: "destructive",
+                            });
+                          });
+                        }}
+                      >
+                        <Play className="w-4 h-4" />
+                        Test Voice
+                      </Button>
+                    )}
                     <Button
                       onClick={() => deleteVoiceClone(clone.id)}
                       variant="outline"
