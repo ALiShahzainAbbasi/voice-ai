@@ -16,6 +16,7 @@ interface TalkingVideo {
   audioText: string;
   voiceId: string;
   videoUrl?: string;
+  audioUrl?: string;
   status: 'preparing' | 'processing' | 'ready' | 'error';
   createdAt: Date;
   duration?: number;
@@ -85,6 +86,12 @@ export function TalkingVideoGenerator({ friends, onVideoGenerated }: TalkingVide
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         throw new Error('Camera access not supported in this browser');
       }
+
+      // Set capturing state first to render video element
+      setIsCapturingPhoto(true);
+      
+      // Small delay to ensure video element is rendered
+      await new Promise(resolve => setTimeout(resolve, 100));
       
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: { 
@@ -279,6 +286,7 @@ export function TalkingVideoGenerator({ friends, onVideoGenerated }: TalkingVide
           audioText: audioText,
           voiceId: selectedVoiceId,
           videoUrl: videoData.videoUrl,
+          audioUrl: videoData.audioUrl, // Add the generated audio URL
           status: 'ready',
           createdAt: new Date(),
           duration: videoData.duration
@@ -560,7 +568,27 @@ export function TalkingVideoGenerator({ friends, onVideoGenerated }: TalkingVide
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
-                      {video.videoUrl && (
+                      {video.audioUrl && (
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => {
+                            const audio = new Audio(video.audioUrl);
+                            audio.play().catch(error => {
+                              console.error('Audio playback failed:', error);
+                              toast({
+                                title: "Audio Playback Failed",
+                                description: "Unable to play generated voice audio",
+                                variant: "destructive",
+                              });
+                            });
+                          }}
+                        >
+                          <Play className="w-4 h-4" />
+                          Test Voice
+                        </Button>
+                      )}
+                      {video.videoUrl && video.videoUrl !== 'data:video/mp4;base64,mockVideoData' && (
                         <Button variant="outline" size="sm" asChild>
                           <a href={video.videoUrl} download={`${video.name}.mp4`}>
                             <Download className="w-4 h-4" />

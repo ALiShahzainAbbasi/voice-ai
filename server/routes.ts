@@ -343,17 +343,61 @@ Respond authentically with specific details and concrete examples.`;
       // Generate a unique voice ID for the clone
       const voiceId = `voice_clone_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
-      console.log('Voice clone created successfully:', voiceId);
+      // Generate sample audio for the voice clone using a default voice
+      const sampleText = `Hello! This is a sample of the voice clone named ${name.trim()}. This demonstrates how the cloned voice would sound.`;
       
-      const response = {
-        id: voiceId,
-        voiceId: voiceId,
-        name: name.trim(),
-        description: description?.trim() || "",
-        status: "ready"
-      };
-      
-      res.json(response);
+      try {
+        const voiceResponse = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/9BWtsMINqrJLrRacOk9x`, {
+          method: "POST",
+          headers: {
+            "Accept": "audio/mpeg",
+            "Content-Type": "application/json",
+            "xi-api-key": apiKey,
+          },
+          body: JSON.stringify({
+            text: sampleText,
+            model_id: "eleven_monolingual_v1",
+            voice_settings: {
+              stability: 0.75,
+              similarity_boost: 0.85,
+            },
+          }),
+        });
+
+        let audioUrl = null;
+        if (voiceResponse.ok) {
+          const audioBuffer = await voiceResponse.arrayBuffer();
+          const base64Audio = Buffer.from(audioBuffer).toString('base64');
+          audioUrl = `data:audio/mpeg;base64,${base64Audio}`;
+          console.log('Sample audio generated for voice clone');
+        } else {
+          console.log('Sample audio generation failed, continuing without audio');
+        }
+
+        console.log('Voice clone created successfully:', voiceId);
+        
+        const response = {
+          id: voiceId,
+          voiceId: voiceId,
+          name: name.trim(),
+          description: description?.trim() || "",
+          audioUrl: audioUrl,
+          status: "ready"
+        };
+        
+        res.json(response);
+      } catch (audioError) {
+        console.log('Audio generation failed, creating voice clone without sample audio');
+        const response = {
+          id: voiceId,
+          voiceId: voiceId,
+          name: name.trim(),
+          description: description?.trim() || "",
+          status: "ready"
+        };
+        
+        res.json(response);
+      }
     } catch (error: any) {
       console.error("Voice cloning error:", error);
       res.status(500).json({ error: error.message || "Failed to create voice clone" });

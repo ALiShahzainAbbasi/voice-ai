@@ -202,7 +202,7 @@ export function VoiceCloning({ onVoiceCloned }: VoiceCloningProps) {
           id: cloneData.id || `clone-${Date.now()}`,
           name: voiceName,
           description: voiceDescription,
-          audioUrl: audioSource,
+          audioUrl: cloneData.audioUrl || audioSource, // Use generated audio if available
           voiceId: cloneData.voiceId,
           status: 'ready',
           createdAt: new Date(),
