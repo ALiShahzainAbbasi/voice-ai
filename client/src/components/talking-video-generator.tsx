@@ -98,13 +98,18 @@ export function TalkingVideoGenerator({ friends, onVideoGenerated }: TalkingVide
       streamRef.current = stream;
       
       if (videoRef.current) {
-        videoRef.current.srcObject = stream;
+        const video = videoRef.current;
+        video.srcObject = stream;
+        video.autoplay = true;
+        video.playsInline = true;
+        video.muted = true; // Needed for autoplay in some browsers
         
         // Wait for video to be ready
-        videoRef.current.onloadedmetadata = () => {
-          console.log('Video metadata loaded');
-          videoRef.current?.play().then(() => {
-            console.log('Video playing');
+        const handleVideoReady = () => {
+          console.log('Video metadata loaded, dimensions:', video.videoWidth, video.videoHeight);
+          
+          video.play().then(() => {
+            console.log('Video playing successfully');
             setIsCapturingPhoto(true);
             
             toast({
@@ -113,13 +118,25 @@ export function TalkingVideoGenerator({ friends, onVideoGenerated }: TalkingVide
             });
           }).catch((error) => {
             console.error('Failed to play video:', error);
-            toast({
-              title: "Video Play Failed",
-              description: "Camera started but video playback failed",
-              variant: "destructive",
-            });
+            // Try alternative approach
+            setTimeout(() => {
+              if (video.readyState >= 2) {
+                console.log('Video ready for capture despite play error');
+                setIsCapturingPhoto(true);
+                toast({
+                  title: "Camera Ready",
+                  description: "Camera is ready for photo capture",
+                });
+              }
+            }, 500);
           });
         };
+        
+        if (video.readyState >= 1) {
+          handleVideoReady();
+        } else {
+          video.onloadedmetadata = handleVideoReady;
+        }
       } else {
         console.error('Video ref not available');
         throw new Error('Video element not ready');
