@@ -79,6 +79,13 @@ export function TalkingVideoGenerator({ friends, onVideoGenerated }: TalkingVide
 
   const startPhotoCapture = async () => {
     try {
+      console.log('Requesting camera access...');
+      
+      // Check if getUserMedia is supported
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('Camera access not supported in this browser');
+      }
+      
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: { 
           width: { ideal: 640 },
@@ -87,22 +94,42 @@ export function TalkingVideoGenerator({ friends, onVideoGenerated }: TalkingVide
         } 
       });
       
+      console.log('Camera stream obtained:', stream);
       streamRef.current = stream;
+      
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        videoRef.current.play();
+        
+        // Wait for video to be ready
+        videoRef.current.onloadedmetadata = () => {
+          console.log('Video metadata loaded');
+          videoRef.current?.play().then(() => {
+            console.log('Video playing');
+            setIsCapturingPhoto(true);
+            
+            toast({
+              title: "Camera Ready",
+              description: "Position yourself in the frame and click capture when ready",
+            });
+          }).catch((error) => {
+            console.error('Failed to play video:', error);
+            toast({
+              title: "Video Play Failed",
+              description: "Camera started but video playback failed",
+              variant: "destructive",
+            });
+          });
+        };
+      } else {
+        console.error('Video ref not available');
+        throw new Error('Video element not ready');
       }
-      setIsCapturingPhoto(true);
       
-      toast({
-        title: "Camera Ready",
-        description: "Position yourself in the frame and click capture when ready",
-      });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to start camera:', error);
       toast({
         title: "Camera Access Failed",
-        description: "Unable to access camera. Please check permissions.",
+        description: error.message || "Unable to access camera. Please check permissions and try again.",
         variant: "destructive",
       });
     }

@@ -331,11 +331,14 @@ Respond authentically with specific details and concrete examples.`;
 
       const apiKey = process.env.ELEVENLABS_API_KEY;
       if (!apiKey) {
-        return res.status(500).json({ error: "ElevenLabs API key not configured" });
+        return res.status(500).json({ error: "ElevenLabs API key not configured. Please add your API key in the Secrets tab." });
       }
 
+      // For now, skip file validation since we're simulating voice cloning
+      // In production, this would handle actual audio file processing
+
       // Simulate processing time for voice cloning
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
       // Generate a unique voice ID for the clone
       const voiceId = `voice_clone_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -349,7 +352,7 @@ Respond authentically with specific details and concrete examples.`;
       });
     } catch (error: any) {
       console.error("Voice cloning error:", error);
-      res.status(500).json({ error: "Failed to create voice clone" });
+      res.status(500).json({ error: error.message || "Failed to create voice clone" });
     }
   });
 
@@ -358,8 +361,16 @@ Respond authentically with specific details and concrete examples.`;
     try {
       const { name, text, voiceId } = req.body;
       
-      if (!name || !text || !voiceId) {
-        return res.status(400).json({ error: "Name, text, and voice ID are required" });
+      if (!name || !name.trim()) {
+        return res.status(400).json({ error: "Video name is required" });
+      }
+      
+      if (!text || !text.trim()) {
+        return res.status(400).json({ error: "Text content is required" });
+      }
+      
+      if (!voiceId || !voiceId.trim()) {
+        return res.status(400).json({ error: "Voice selection is required" });
       }
 
       const apiKey = process.env.ELEVENLABS_API_KEY;

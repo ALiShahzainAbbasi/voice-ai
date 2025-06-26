@@ -57,6 +57,8 @@ export function VoiceCloning({ onVoiceCloned }: VoiceCloningProps) {
         const audioUrl = URL.createObjectURL(audioBlob);
         setRecordedAudio(audioUrl);
         
+        console.log('Audio recorded successfully:', audioUrl);
+        
         // Stop all tracks to release microphone
         stream.getTracks().forEach(track => track.stop());
       };
@@ -317,8 +319,25 @@ export function VoiceCloning({ onVoiceCloned }: VoiceCloningProps) {
             <div className="space-y-3">
               <Label className="text-sm font-medium">Audio Preview</Label>
               <div className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                <audio controls className="flex-1">
+                <audio 
+                  controls 
+                  className="flex-1"
+                  preload="metadata"
+                  onError={(e) => {
+                    console.error('Audio preview error:', e);
+                    toast({
+                      title: "Audio Preview Error",
+                      description: "Unable to play audio preview. Try recording again.",
+                      variant: "destructive",
+                    });
+                  }}
+                  onLoadedData={() => {
+                    console.log('Audio preview loaded successfully');
+                  }}
+                >
                   <source src={currentAudio} type="audio/wav" />
+                  <source src={currentAudio} type="audio/mpeg" />
+                  <source src={currentAudio} type="audio/mp3" />
                   Your browser does not support audio playback.
                 </audio>
                 <Button
@@ -330,6 +349,9 @@ export function VoiceCloning({ onVoiceCloned }: VoiceCloningProps) {
                   <Trash2 className="w-4 h-4" />
                 </Button>
               </div>
+              <p className="text-xs text-gray-500">
+                If preview doesn't work, try recording again or upload a different audio file.
+              </p>
             </div>
           )}
 
