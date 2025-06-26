@@ -231,17 +231,22 @@ export function TalkingVideoGenerator({ friends, onVideoGenerated }: TalkingVide
         });
       }, 800);
 
-      // Create form data for the API call
-      const formData = new FormData();
-      formData.append('image', selectedImageFile);
-      formData.append('text', audioText.trim());
-      formData.append('voiceId', selectedVoiceId);
-      formData.append('name', videoName.trim());
+      // Prepare data for the API call
+      const requestData = {
+        name: videoName.trim(),
+        text: audioText.trim(),
+        voiceId: selectedVoiceId.trim(),
+      };
+
+      console.log('Generating talking video with data:', requestData);
 
       // Call API to generate talking video
       const response = await fetch('/api/generate-talking-video', {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
       });
 
       clearInterval(progressInterval);
@@ -282,9 +287,22 @@ export function TalkingVideoGenerator({ friends, onVideoGenerated }: TalkingVide
       }
     } catch (error) {
       console.error('Talking video generation error:', error);
+      
+      let errorMessage = "An unexpected error occurred";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
+      // Provide more specific error guidance
+      if (errorMessage.includes("API key")) {
+        errorMessage = "ElevenLabs API key not configured. Please add your API key in the Secrets tab.";
+      } else if (errorMessage.includes("Name, text, and voice")) {
+        errorMessage = "Please fill in all required fields: video name, text content, and voice selection.";
+      }
+      
       toast({
         title: "Video Generation Failed",
-        description: error instanceof Error ? error.message : "An unexpected error occurred",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {

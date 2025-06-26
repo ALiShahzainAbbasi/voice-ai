@@ -160,6 +160,9 @@ This is a full-stack React application built for testing voice synthesis with di
 - June 26, 2025: Fixed photo capture functionality in Talking Videos with enhanced error handling and video initialization
 - June 26, 2025: Improved voice cloning error handling with detailed feedback and API response validation
 - June 26, 2025: Enhanced Voice Only Mode with proper user interruption, priority speaking, and conversation topic changes
+- June 26, 2025: Fixed camera access issues in Talking Videos with improved getUserMedia error handling and video stream initialization
+- June 26, 2025: Enhanced voice cloning audio preview with multiple format support and detailed error feedback
+- June 26, 2025: Improved talking video generation API validation and error messaging for better user guidance
 
 ## User Preferences
 
