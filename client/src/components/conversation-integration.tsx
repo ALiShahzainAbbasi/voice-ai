@@ -7,50 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 
-interface ConversationTemplate {
-  id: string;
-  name: string;
-  scenario: string;
-  suggestedText: string;
-}
-
-const conversationTemplates: ConversationTemplate[] = [
-  {
-    id: "friendly-chat",
-    name: "Friendly Chat",
-    scenario: "Casual conversation with a friend",
-    suggestedText: "Hey there! How's your day going? I was just thinking about that amazing coffee shop we went to last week."
-  },
-  {
-    id: "emotional-support",
-    name: "Emotional Support",
-    scenario: "Providing comfort and encouragement",
-    suggestedText: "I'm really sorry you're going through this difficult time. Remember that you're stronger than you think, and this too shall pass."
-  },
-  {
-    id: "professional-meeting",
-    name: "Professional Meeting",
-    scenario: "Business or work-related discussion",
-    suggestedText: "Good morning everyone. I'd like to discuss the quarterly results and our strategic plans for the upcoming quarter."
-  },
-  {
-    id: "storytelling",
-    name: "Storytelling",
-    scenario: "Narrating a story or experience",
-    suggestedText: "Once upon a time, in a small village nestled between rolling hills, there lived a young inventor who dreamed of changing the world."
-  },
-  {
-    id: "debate-discussion",
-    name: "Debate/Discussion",
-    scenario: "Expressing strong opinions or arguments",
-    suggestedText: "I strongly believe that renewable energy is the key to our future. The evidence clearly shows that solar and wind power are becoming more cost-effective."
-  }
-];
-
-interface ConversationIntegrationProps {
-  onTextGenerated: (text: string) => void;
-  onTemplateSelected?: (templateScenario: string) => void;
-}
+import type { ConversationIntegrationProps, ConversationTemplate } from '@/types';
+import { CONVERSATION_TEMPLATES } from '@/constants';
 
 export function ConversationIntegration({ onTextGenerated, onTemplateSelected }: ConversationIntegrationProps) {
   const [selectedTemplate, setSelectedTemplate] = useState<ConversationTemplate | null>(null);
@@ -145,7 +103,7 @@ export function ConversationIntegration({ onTextGenerated, onTemplateSelected }:
           )}
           
           <div className="grid grid-cols-1 gap-2">
-            {conversationTemplates.map((template) => (
+            {CONVERSATION_TEMPLATES.map((template: ConversationTemplate) => (
               <Button
                 key={template.id}
                 variant={selectedTemplate?.id === template.id ? "default" : "outline"}

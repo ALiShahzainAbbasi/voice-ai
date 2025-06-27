@@ -6,7 +6,7 @@ export class LocalStorageService {
   // Friend configurations
   static saveFriends(friends: Friend[]): void {
     try {
-      localStorage.setItem(FRIENDS_STORAGE_KEY, JSON.stringify(friends));
+      localStorage.setItem(STORAGE_KEYS.FRIENDS, JSON.stringify(friends));
     } catch (error) {
       console.warn('Failed to save friends to local storage:', error);
     }
@@ -14,7 +14,7 @@ export class LocalStorageService {
 
   static loadFriends(): Friend[] {
     try {
-      const stored = localStorage.getItem(FRIENDS_STORAGE_KEY);
+      const stored = localStorage.getItem(STORAGE_KEYS.FRIENDS);
       return stored ? JSON.parse(stored) : [];
     } catch (error) {
       console.warn('Failed to load friends from local storage:', error);
@@ -65,7 +65,7 @@ export class LocalStorageService {
     try {
       const current = this.loadSettings();
       const updated = { ...current, ...settings };
-      localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(updated));
+      localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(updated));
     } catch (error) {
       console.warn('Failed to save settings to local storage:', error);
     }
@@ -73,30 +73,18 @@ export class LocalStorageService {
 
   static loadSettings(): AppSettings {
     try {
-      const stored = localStorage.getItem(SETTINGS_STORAGE_KEY);
-      const defaults: AppSettings = {
-        playbackSpeed: 1.0,
-        masterVolume: 75,
-        autoSaveFriends: true,
-        lastTextInput: "Hello, I'm your virtual friend! How are you doing today?"
-      };
-      
-      return stored ? { ...defaults, ...JSON.parse(stored) } : defaults;
+      const stored = localStorage.getItem(STORAGE_KEYS.SETTINGS);
+      return stored ? { ...DEFAULT_SETTINGS, ...JSON.parse(stored) } : DEFAULT_SETTINGS;
     } catch (error) {
       console.warn('Failed to load settings from local storage:', error);
-      return {
-        playbackSpeed: 1.0,
-        masterVolume: 75,
-        autoSaveFriends: true,
-        lastTextInput: "Hello, I'm your virtual friend! How are you doing today?"
-      };
+      return DEFAULT_SETTINGS;
     }
   }
 
   static clearAll(): void {
     try {
-      localStorage.removeItem(FRIENDS_STORAGE_KEY);
-      localStorage.removeItem(SETTINGS_STORAGE_KEY);
+      localStorage.removeItem(STORAGE_KEYS.FRIENDS);
+      localStorage.removeItem(STORAGE_KEYS.SETTINGS);
     } catch (error) {
       console.warn('Failed to clear local storage:', error);
     }
