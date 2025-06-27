@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Upload, Mic, MicOff, Play, Pause, Trash2, Save, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -36,13 +36,25 @@ export function VoiceCloning({ onVoiceCloned }: VoiceCloningProps) {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const { toast } = useToast();
+
+  // Update audio element when recordedAudio changes
+  useEffect(() => {
+    if (audioRef.current && recordedAudio) {
+      audioRef.current.src = recordedAudio;
+      audioRef.current.load(); // Force reload
+      console.log('Audio element src updated:', recordedAudio);
+    }
+  }, [recordedAudio]);
 
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       
+      // Use the default format that the browser supports best
       const mediaRecorder = new MediaRecorder(stream);
+      console.log('MediaRecorder created with mimeType:', mediaRecorder.mimeType);
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
 
@@ -53,7 +65,20 @@ export function VoiceCloning({ onVoiceCloned }: VoiceCloningProps) {
       };
 
       mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        const mimeType = mediaRecorder.mimeType || 'audio/webm';
+        const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
+        console.log('Creating blob with mimeType:', mimeType);
+        
+        if (audioBlob.size === 0) {
+          console.error('No audio data recorded');
+          toast({
+            title: "Recording Failed",
+            description: "No audio data was captured. Please try again.",
+            variant: "destructive",
+          });
+          return;
+        }
+        
         const audioUrl = URL.createObjectURL(audioBlob);
         
         // Clear any existing recorded audio
@@ -61,9 +86,35 @@ export function VoiceCloning({ onVoiceCloned }: VoiceCloningProps) {
           URL.revokeObjectURL(recordedAudio);
         }
         
+        // Test if the blob URL is valid by creating a temporary audio element
+        const testAudio = new Audio(audioUrl);
+        testAudio.addEventListener('loadeddata', () => {
+          console.log('Audio blob validated successfully');
+          setRecordedAudio(audioUrl);
+        });
+        testAudio.addEventListener('error', (e) => {
+          console.error('Invalid audio blob:', e);
+          toast({
+            title: "Audio Format Error",
+            description: "The recorded audio format is not supported. Please try again.",
+            variant: "destructive",
+          });
+          URL.revokeObjectURL(audioUrl);
+        });
+        
+        console.log('Audio recorded successfully:', audioUrl, 'Blob size:', audioBlob.size, 'Type:', audioBlob.type);
+        
+        // Set the recorded audio immediately (the validation is just for debugging)
         setRecordedAudio(audioUrl);
         
-        console.log('Audio recorded successfully:', audioUrl, 'Blob size:', audioBlob.size);
+        // Try to play a test beep to verify audio system works
+        setTimeout(() => {
+          if (audioRef.current) {
+            audioRef.current.play().catch(e => {
+              console.log('Auto-play blocked (normal), user must click play:', e);
+            });
+          }
+        }, 100);
         
         // Stop all tracks to release microphone
         stream.getTracks().forEach(track => track.stop());
@@ -328,6 +379,7 @@ export function VoiceCloning({ onVoiceCloned }: VoiceCloningProps) {
               <Label className="text-sm font-medium">Audio Preview</Label>
               <div className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
                 <audio 
+                  ref={audioRef}
                   controls 
                   className="flex-1"
                   preload="metadata"
@@ -346,9 +398,6 @@ export function VoiceCloning({ onVoiceCloned }: VoiceCloningProps) {
                     console.log('Audio ready to play');
                   }}
                 >
-                  <source src={currentAudio} type="audio/webm" />
-                  <source src={currentAudio} type="audio/wav" />
-                  <source src={currentAudio} type="audio/mpeg" />
                   Your browser does not support audio playback.
                 </audio>
                 <Button
