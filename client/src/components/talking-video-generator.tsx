@@ -609,7 +609,7 @@ export function TalkingVideoGenerator({ friends, onVideoGenerated }: TalkingVide
                     "{video.audioText}"
                   </p>
                   
-                  {video.videoUrl && (
+                  {video.videoUrl && video.videoUrl !== 'data:video/mp4;base64,mockVideoData' ? (
                     <video 
                       controls 
                       className="w-full max-w-md rounded-lg"
@@ -618,6 +618,16 @@ export function TalkingVideoGenerator({ friends, onVideoGenerated }: TalkingVide
                       <source src={video.videoUrl} type="video/mp4" />
                       Your browser does not support video playback.
                     </video>
+                  ) : (
+                    <div className="w-full max-w-md mx-auto p-8 bg-gray-100 dark:bg-gray-800 rounded-lg text-center">
+                      <Video className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Video generation completed! Use the Test Voice button to hear the generated audio.
+                      </p>
+                      <p className="text-xs text-gray-500 mt-2">
+                        Full video generation requires integration with specialized AI video services.
+                      </p>
+                    </div>
                   )}
                 </div>
               ))}

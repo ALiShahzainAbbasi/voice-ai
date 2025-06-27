@@ -53,11 +53,17 @@ export function VoiceCloning({ onVoiceCloned }: VoiceCloningProps) {
       };
 
       mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
         const audioUrl = URL.createObjectURL(audioBlob);
+        
+        // Clear any existing recorded audio
+        if (recordedAudio) {
+          URL.revokeObjectURL(recordedAudio);
+        }
+        
         setRecordedAudio(audioUrl);
         
-        console.log('Audio recorded successfully:', audioUrl);
+        console.log('Audio recorded successfully:', audioUrl, 'Blob size:', audioBlob.size);
         
         // Stop all tracks to release microphone
         stream.getTracks().forEach(track => track.stop());
@@ -324,7 +330,6 @@ export function VoiceCloning({ onVoiceCloned }: VoiceCloningProps) {
                 <audio 
                   controls 
                   className="flex-1"
-                  src={currentAudio}
                   preload="metadata"
                   onError={(e) => {
                     console.error('Audio preview error:', e);
@@ -341,6 +346,9 @@ export function VoiceCloning({ onVoiceCloned }: VoiceCloningProps) {
                     console.log('Audio ready to play');
                   }}
                 >
+                  <source src={currentAudio} type="audio/webm" />
+                  <source src={currentAudio} type="audio/wav" />
+                  <source src={currentAudio} type="audio/mpeg" />
                   Your browser does not support audio playback.
                 </audio>
                 <Button

@@ -61,7 +61,7 @@ export default function VoiceLab() {
         lastSpeaker: undefined
       });
     }
-  }, [friends.length, friends]);
+  }, [friends.length]); // Only depend on friends.length to avoid infinite re-renders
 
   // Load settings from localStorage
   useEffect(() => {

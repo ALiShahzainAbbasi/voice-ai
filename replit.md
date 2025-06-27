@@ -169,6 +169,9 @@ This is a full-stack React application built for testing voice synthesis with di
 - June 26, 2025: Fixed camera capture by setting isCapturingPhoto state before stream request to ensure video element is rendered
 - June 26, 2025: Added real voice generation to voice cloning with ElevenLabs API and Test Voice buttons for audio playback
 - June 26, 2025: Enhanced talking video generation with proper audioUrl handling and Test Voice functionality
+- June 26, 2025: Fixed maximum update depth error in voice-lab by removing conflicting dependencies from useEffect
+- June 26, 2025: Fixed talking video runtime error by properly handling mock video data and displaying informative placeholder
+- June 26, 2025: Improved voice recording audio preview by switching to webm format with multiple source fallbacks
 
 ## User Preferences
 
