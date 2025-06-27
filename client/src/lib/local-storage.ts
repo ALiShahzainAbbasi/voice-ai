@@ -1,14 +1,6 @@
 import type { Friend, InsertFriend } from "@shared/schema";
-
-const FRIENDS_STORAGE_KEY = 'voice-lab-friends';
-const SETTINGS_STORAGE_KEY = 'voice-lab-settings';
-
-export interface AppSettings {
-  playbackSpeed: number;
-  masterVolume: number;
-  autoSaveFriends: boolean;
-  lastTextInput: string;
-}
+import type { AppSettings } from "@/types";
+import { STORAGE_KEYS, DEFAULT_SETTINGS } from "@/constants";
 
 export class LocalStorageService {
   // Friend configurations
