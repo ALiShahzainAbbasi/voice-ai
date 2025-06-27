@@ -232,13 +232,33 @@ export function VoiceCloning({ onVoiceCloned }: VoiceCloningProps) {
         });
       }, 500);
 
+      // Convert audio blob to base64 for transmission
+      let audioData = null;
+      if (recordedAudio) {
+        // For recorded audio, we need to convert the blob URL to base64
+        const response = await fetch(recordedAudio);
+        const blob = await response.blob();
+        const reader = new FileReader();
+        audioData = await new Promise((resolve) => {
+          reader.onloadend = () => resolve(reader.result);
+          reader.readAsDataURL(blob);
+        });
+      } else if (uploadedAudio) {
+        audioData = uploadedAudio;
+      }
+
+      if (!audioData) {
+        throw new Error('No audio data available for voice cloning');
+      }
+
       // Prepare data for the API call
       const requestData = {
         name: voiceName.trim(),
         description: voiceDescription.trim(),
+        audioData: audioData,
       };
 
-      console.log('Creating voice clone with data:', requestData);
+      console.log('Creating voice clone with data:', { name: requestData.name, description: requestData.description, hasAudioData: !!requestData.audioData });
 
       // Call API to create voice clone
       const cloneResponse = await fetch('/api/create-voice-clone', {
