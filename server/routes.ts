@@ -381,8 +381,8 @@ Respond authentically with specific details and concrete examples.`;
         }
 
         const response = {
-          id: voiceId,
-          voiceId: voiceId,
+          id: clonedVoiceId,
+          voiceId: clonedVoiceId,
           name: name.trim(),
           description: description?.trim() || "",
           audioUrl: audioUrl,
@@ -393,8 +393,8 @@ Respond authentically with specific details and concrete examples.`;
       } catch (audioError) {
         console.log('Audio generation failed, creating voice clone without sample audio');
         const response = {
-          id: voiceId,
-          voiceId: voiceId,
+          id: clonedVoiceId,
+          voiceId: clonedVoiceId,
           name: name.trim(),
           description: description?.trim() || "",
           status: "ready"
