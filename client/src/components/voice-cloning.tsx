@@ -401,6 +401,22 @@ export function VoiceCloning({ onVoiceCloned }: VoiceCloningProps) {
                   Your browser does not support audio playback.
                 </audio>
                 <Button
+                  onClick={() => {
+                    if (audioRef.current) {
+                      console.log('Manual play attempt, audio src:', audioRef.current.src);
+                      audioRef.current.play().then(() => {
+                        console.log('Audio played successfully');
+                      }).catch(e => {
+                        console.error('Manual play failed:', e);
+                      });
+                    }
+                  }}
+                  variant="outline"
+                  size="sm"
+                >
+                  <Play className="w-4 h-4" />
+                </Button>
+                <Button
                   onClick={clearAudio}
                   variant="outline"
                   size="sm"
